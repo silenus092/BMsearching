@@ -6,11 +6,8 @@
  */
 
 #include "BM.h"
-#include <limits.h>
-#include <iostream>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+bool Match = false;
+
 BM::BM() {
 	// TODO Auto-generated constructor stub
 
@@ -36,9 +33,60 @@ void BM::badCharHeuristic( char *str, int size, int badchar[NO_OF_CHARS])
          badchar[(int) str[i]] = i;
 }
 
+void preBmBc(char *x, int m, int bmBc[]) {
+   int i;
+
+   for (i = 0; i < NO_OF_CHARS; ++i)
+      bmBc[i] = m;
+   for (i = 0; i < m - 1; ++i)
+      bmBc[x[i]] = m - i - 1;
+}
+
+void suffixes(char *x, int m, int *suff) {
+   int f, g, i;
+
+   suff[m - 1] = m;
+   g = m - 1;
+   for (i = m - 2; i >= 0; --i) {
+      if (i > g && suff[i + m - 1 - f] < i - g)
+         suff[i] = suff[i + m - 1 - f];
+      else {
+         if (i < g)
+            g = i;
+         f = i;
+         while (g >= 0 && x[g] == x[g + m - 1 - f])
+            --g;
+         suff[i] = f - g;
+      }
+   }
+}
+
+void preBmGs(char *x, int m, int bmGs[]) {
+	  int XSIZE = strlen(x);
+
+   int i, j, suff[XSIZE];
+
+   suffixes(x, m, suff);
+
+   for (i = 0; i < m; ++i)
+      bmGs[i] = m;
+   j = 0;
+   for (i = m - 1; i >= 0; --i)
+      if (suff[i] == i + 1)
+         for (; j < m - 1 - i; ++j)
+            if (bmGs[j] == m)
+               bmGs[j] = m - 1 - i;
+   for (i = 0; i <= m - 2; ++i)
+      bmGs[m - 1 - suff[i]] = m - 1 - i;
+}
+
+bool BM::getMatch()
+{
+  return Match ;
+}
 /* A pattern searching function that uses Bad Character Heuristic of
    Boyer Moore Algorithm */
-void BM::search( char *txt,  char *pat)
+void BM::search( char *txt,  char *pat ,string id)
 {
     int m = strlen(pat);
     int n = strlen(txt);
@@ -63,17 +111,18 @@ void BM::search( char *txt,  char *pat)
            will become -1 after the above loop */
         if (j < 0)
         {
-            printf("pattern occurs at shift = %d : %s \n ", s,pat);
+        	Match = true;
+            printf("pattern occurs at = %s :pat = %s \n ", id.c_str(), pat);
 
             /* Shift the pattern so that the next character in text
                aligns with the last occurrence of it in pattern.
                The condition s+m < n is necessary for the case when
                pattern occurs at the end of text */
             s += (s+m < n)? m-badchar[txt[s+m]] : 1;
-
+            break;
         }
 
-        else
+        else{
             /* Shift the pattern so that the bad character in text
                aligns with the last occurrence of it in pattern. The
                max function is used to make sure that we get a positive
@@ -81,5 +130,10 @@ void BM::search( char *txt,  char *pat)
                of bad character in pattern is on the right side of the
                current character. */
             s += max(1, j - badchar[txt[s+j]]);
+        	Match = false;
+        }
+
     }
 }
+
+
