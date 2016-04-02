@@ -20,10 +20,13 @@ class BM {
 public:
 	BM();
 	virtual ~BM();
-	int max (int a, int b) ;
+	void Run_BM(char *x, int m, char *y, int n, string id,string column);
+	int MAX (int a, int b) ;
 	void badCharHeuristic( char *str, int size, int badchar[NO_OF_CHARS]);
-	void search( char *txt,  char *pat , string id);
+	void search( char *txt,  char *pat , string id,string column);
 	bool getMatch();
+	void publicFunction();
+
 };
 
 #endif /* BM_H_ */
