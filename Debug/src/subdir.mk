@@ -5,15 +5,18 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/BM.cpp \
-../src/BMsearching.cpp 
+../src/BMsearching.cpp \
+../src/Horspool.cpp 
 
 OBJS += \
 ./src/BM.o \
-./src/BMsearching.o 
+./src/BMsearching.o \
+./src/Horspool.o 
 
 CPP_DEPS += \
 ./src/BM.d \
-./src/BMsearching.d 
+./src/BMsearching.d \
+./src/Horspool.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

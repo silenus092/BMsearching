@@ -90,10 +90,8 @@ void BM::Run_BM(char *pat, int m, char *txt, int n ,string id,string column) {
    if(Match == true){
 	   cout << "Text: "<< txt  << endl;
    }
+
 }
-
-
-
 
 
 // The preprocessing function for Boyer Moore's bad character heuristic
@@ -120,7 +118,12 @@ void BM::search( char *txt,  char *pat ,string id,string column)
 {
     int m = strlen(pat);
     int n = strlen(txt);
-    int badchar[NO_OF_CHARS];
+    //int badchar[NO_OF_CHARS];
+   /* thread john(&BM::Run_BM,this, pat,m, txt,n,id,column);
+    john.detach();*/
+    /*if (john.joinable())
+    	john.join();*/
+
     Run_BM(pat,m,txt,n,id,column);
     /* Fill the bad character array by calling the preprocessing
        function badCharHeuristic() for given pattern */

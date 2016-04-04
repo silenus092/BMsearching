@@ -25,13 +25,14 @@ brief_summary,detailed_description, criteria) AGAINST ("CIN1");
 #include <cppconn/exception.h>
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
-#include <thread>
 #include "BM.h"
+#include "Horspool.h"
 using namespace std;
 using namespace sql::mysql;
 // Global Variables
 int NO_OF_GENE = 40962;
 BM bm ;
+Horspool horspool;
 struct Gene {
 string  name;
   string symbols;
@@ -119,7 +120,7 @@ int main() {
 	 cout << "Fetch All Clinical Records" << endl;
 	 Fetch_All_Clinical_Records();
 
-	 const clock_t begin_time = clock();
+	const clock_t begin_time = clock();
 	  	 while (res->next()) {
 	  		string id = res->getString("nct_id");
 	  		string temp_name = res->getString("brief_title");
@@ -133,9 +134,6 @@ int main() {
 	  		char pat[5];
 	  		strcpy(txt,temp_name.c_str());
 	  		strcpy(pat, "CIN1");
-
-
-
 	  		bm.search(txt, pat ,id ,"brief_title");
 	  		  if(!bm.getMatch()){
 	  		  string temp_brief_summary_name = res->getString("brief_summary");
@@ -144,9 +142,7 @@ int main() {
 	  		  		char txt_brief_summary[temp_brief_summary];
 	  		  		strcpy(txt_brief_summary,temp_brief_summary_name.c_str());
 	  		  		bm.search(txt_brief_summary, pat ,id,"brief_summary");
-
 	  		  }
-
 	  		  if(!bm.getMatch()){
 	  			 string temp_detailed_description_name = res->getString("detailed_description");
 	  				  		  		int temp_detailed_description = 0;
@@ -154,9 +150,7 @@ int main() {
 	  				  		  		char txt_detailed_description[temp_detailed_description];
 	  				  		  		strcpy(txt_detailed_description,temp_detailed_description_name.c_str());
 	  				  		  		bm.search(txt_detailed_description, pat ,id,"detailed_description");
-
 	  		  }
-
 	  		  if(!bm.getMatch() ){
 	  			  			 string temp_detailed_description_name = res->getString("detailed_description");
 	  			  				  		  		int temp_detailed_description = 0;
@@ -165,7 +159,6 @@ int main() {
 	  			  				  		  		strcpy(txt_detailed_description,temp_detailed_description_name.c_str());
 	  			  				  		  		bm.search(txt_detailed_description, pat ,id,"detailed_description");
 	  		 }
-
 	  		  if(!bm.getMatch()){
 	  		  	string temp_criteria_name = res->getString("criteria");
 	  			int temp_criteria = 0;
@@ -173,22 +166,63 @@ int main() {
 	  			  		  		char txt_criteria[temp_criteria];
 	  			  		  		strcpy(txt_criteria,temp_criteria_name.c_str());
 	  			  		  		bm.search(txt_criteria, pat ,id,"criteria");
-
 	  		  }
-	  	   /*for(j = 0 ; j < NO_OF_GENE ; j++){
-	  			    //printf("From Clinical Study: %s \n",temp_name.c_str());
-	  			    //cout << "Gene Name:"<< gene_struct[j].symbols.c_str() << endl;
-	  			  strcpy(pat, gene_struct[j].symbols.c_str());
-	  			  bm.search(txt, pat);
-	  	   }*/
-
-	  		/*thread Peak(&BM::search,&bm, &txt[0], pat ,id);
-	  			  			  		  		  		Peak.detach();*/
-
-
-
 	  	 }
-	   cout <<"Usage Time (second): "<< float( clock () - begin_time ) /  CLOCKS_PER_SEC;
+	   cout <<"-------*------- BM Usage Time (second): "<< float( clock () - begin_time ) /  CLOCKS_PER_SEC;
+
+	   /*int x = 0;
+	   const clock_t begin_time_horspool = clock();
+		  	 while (res->next() && x < 1500) {
+		  		string id = res->getString("nct_id");
+		  		string temp_name = res->getString("brief_title");
+		  		//string temp_brief_summary = res->getString("brief_summary");
+		  		//string temp_detailed_description = res->getString("detailed_description");
+		  		//string temp_criteria= res->getString("criteria");
+		  		printf("%d From Clinical Study: %s \n",x++,temp_name.c_str() );
+		  		int temp_size = 0;
+		  	    temp_size =  temp_name.size();
+		  		char txt[temp_size];
+		  		char pat[5];
+		  		strcpy(txt,temp_name.c_str());
+		  		strcpy(pat, "CIN1");
+		  	     int m = strlen(pat);
+		  	    horspool.HORSPOOL_preBmBc(pat ,m);
+		  		horspool.search(txt, pat ,id ,"brief_title");
+		  		 /* if(!horspool.getMatch()){
+		  		  string temp_brief_summary_name = res->getString("brief_summary");
+		  		  int temp_brief_summary = 0;
+		  		  	    temp_brief_summary =  temp_brief_summary_name.size();
+		  		  		char txt_brief_summary[temp_brief_summary];
+		  		  		strcpy(txt_brief_summary,temp_brief_summary_name.c_str());
+		  		  	horspool.search(txt_brief_summary, pat ,id,"brief_summary");
+		  		  }
+		  		  if(!horspool.getMatch()){
+		  			 string temp_detailed_description_name = res->getString("detailed_description");
+		  				  		  		int temp_detailed_description = 0;
+		  				  		  		temp_detailed_description =  temp_detailed_description_name.size();
+		  				  		  		char txt_detailed_description[temp_detailed_description];
+		  				  		  		strcpy(txt_detailed_description,temp_detailed_description_name.c_str());
+		  				  		  	horspool.search(txt_detailed_description, pat ,id,"detailed_description");
+		  		  }
+		  		  if(!horspool.getMatch() ){
+		  			  			 string temp_detailed_description_name = res->getString("detailed_description");
+		  			  				  		  		int temp_detailed_description = 0;
+		  			  				  		  		temp_detailed_description =  temp_detailed_description_name.size();
+		  			  				  		  		char txt_detailed_description[temp_detailed_description];
+		  			  				  		  		strcpy(txt_detailed_description,temp_detailed_description_name.c_str());
+		  			  				  		  horspool.search(txt_detailed_description, pat ,id,"detailed_description");
+		  		 }
+		  		  if(!horspool.getMatch()){
+		  		  	string temp_criteria_name = res->getString("criteria");
+		  			int temp_criteria = 0;
+		  			  		  		temp_criteria =  temp_criteria_name.size();
+		  			  		  		char txt_criteria[temp_criteria];
+		  			  		  		strcpy(txt_criteria,temp_criteria_name.c_str());
+		  			  		  	horspool.search(txt_criteria, pat ,id,"criteria");
+		  		  }*/
+		  	// }
+		  // cout <<"-------*------- BM-Horspool Usage Time (second): "<< float( clock () - begin_time_horspool ) /  CLOCKS_PER_SEC;
+
 
 	   delete res;
 	   delete stmt;
@@ -200,9 +234,6 @@ int main() {
 		  cout << " (MySQL error code: " << e.getErrorCode();
 		  cout << ", SQLState: " << e.getSQLState() << " )" << endl;
 	}
-
-
-
 	  return 0;
 }
 
