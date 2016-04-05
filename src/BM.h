@@ -14,17 +14,28 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <thread>
-using namespace std;
+#include <list>
 
+using namespace std;
+struct ClinicalTrialRecords {
+		string nct_id;
+		string brief_title;
+		string brief_summary;
+		string detailed_description;
+		string criteria;
+	};
 class BM {
 # define NO_OF_CHARS 256
+
+
 public:
+
 	BM();
 	virtual ~BM();
 	void Run_BM(char *x, int m, char *y, int n, string id,string column);
 	int MAX (int a, int b) ;
 	void badCharHeuristic( char *str, int size, int badchar[NO_OF_CHARS]);
-	void search( char *txt,  char *pat , string id,string column);
+	void search( list<ClinicalTrialRecords> *list,  char *pat ,string column);
 	bool getMatch();
 	void publicFunction();
 

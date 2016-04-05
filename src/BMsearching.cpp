@@ -15,34 +15,14 @@ WHERE MATCH (brief_title ,
 brief_summary,detailed_description, criteria) AGAINST ("CIN1");
 
 */
-#include <limits.h>
+
 #include <iostream>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include "mysql_connection.h"
-#include <cppconn/driver.h>
-#include <cppconn/exception.h>
-#include <cppconn/resultset.h>
-#include <cppconn/statement.h>
+#include "BMsearching.h"
 #include "BM.h"
 #include "Horspool.h"
-using namespace std;
-using namespace sql::mysql;
-// Global Variables
-int NO_OF_GENE = 40962;
+list<ClinicalTrialRecords> Cli_Record_list;
 BM bm ;
 Horspool horspool;
-struct Gene {
-string  name;
-  string symbols;
-} gene_struct[40962];
-sql::Driver *driver;
-sql::Connection *con;
-sql::Statement *stmt;
-sql::ResultSet *res;
-int number_results;
-
 class myFunctorParam
 {
 public:
@@ -99,18 +79,27 @@ void Construct_Gene_Array(){
 void Fetch_All_Clinical_Records(){
 	  stmt = con->createStatement();
 	  res = stmt->executeQuery("SELECT  nct_id,brief_title ,brief_summary,detailed_description, criteria from  clinical_study");
-	  number_results = res->rowsCount();
-	  printf("Size of Clinical Study: %d \n",number_results);
 }
+void Construct_Records(){
+	  number_results = res->rowsCount();
+	  ClinicalTrialRecords names;
+
+		 while (res->next()) {
+			 names.nct_id = res->getString("nct_id");
+			 names.brief_title = res->getString("brief_title");
+			 names.brief_summary = res->getString("brief_summary");
+			 names.detailed_description = res->getString("detailed_description");
+			 names.criteria= res->getString("criteria");
+			 Cli_Record_list.push_back(names);
+		 }
+		 printf("Size of Clinical Study records: %d \n",Cli_Record_list.size());
+}
+
 int main() {
 
 	 int badchar[NO_OF_CHARS];
-	  std::cout << "Number of threads = "
-	  <<  std::thread::hardware_concurrency() << std::endl;
-
-
+	 std::cout << "Number of threads = " <<  std::thread::hardware_concurrency() << std::endl;
 	try{
-
 	 cout << "Create_A_Connection" << endl;
 	 Create_A_Connection();
 	 cout << "Connect to the MySQL clintrialsgov_out database" << endl;
@@ -119,55 +108,25 @@ int main() {
 	 Construct_Gene_Array();
 	 cout << "Fetch All Clinical Records" << endl;
 	 Fetch_All_Clinical_Records();
+	 Construct_Records();
+	   const clock_t begin_time = clock();
 
-	const clock_t begin_time = clock();
-	  	 while (res->next()) {
-	  		string id = res->getString("nct_id");
-	  		string temp_name = res->getString("brief_title");
-	  		//string temp_brief_summary = res->getString("brief_summary");
-	  		//string temp_detailed_description = res->getString("detailed_description");
-	  		//string temp_criteria= res->getString("criteria");
-	  		//printf("From Clinical Study: %s \n",temp_name.c_str());
-	  		int temp_size = 0;
-	  	    temp_size =  temp_name.size();
-	  		char txt[temp_size];
 	  		char pat[5];
-	  		strcpy(txt,temp_name.c_str());
 	  		strcpy(pat, "CIN1");
-	  		bm.search(txt, pat ,id ,"brief_title");
-	  		  if(!bm.getMatch()){
-	  		  string temp_brief_summary_name = res->getString("brief_summary");
-	  		  int temp_brief_summary = 0;
-	  		  	    temp_brief_summary =  temp_brief_summary_name.size();
-	  		  		char txt_brief_summary[temp_brief_summary];
-	  		  		strcpy(txt_brief_summary,temp_brief_summary_name.c_str());
-	  		  		bm.search(txt_brief_summary, pat ,id,"brief_summary");
-	  		  }
-	  		  if(!bm.getMatch()){
-	  			 string temp_detailed_description_name = res->getString("detailed_description");
-	  				  		  		int temp_detailed_description = 0;
-	  				  		  		temp_detailed_description =  temp_detailed_description_name.size();
-	  				  		  		char txt_detailed_description[temp_detailed_description];
-	  				  		  		strcpy(txt_detailed_description,temp_detailed_description_name.c_str());
-	  				  		  		bm.search(txt_detailed_description, pat ,id,"detailed_description");
-	  		  }
-	  		  if(!bm.getMatch() ){
-	  			  			 string temp_detailed_description_name = res->getString("detailed_description");
-	  			  				  		  		int temp_detailed_description = 0;
-	  			  				  		  		temp_detailed_description =  temp_detailed_description_name.size();
-	  			  				  		  		char txt_detailed_description[temp_detailed_description];
-	  			  				  		  		strcpy(txt_detailed_description,temp_detailed_description_name.c_str());
-	  			  				  		  		bm.search(txt_detailed_description, pat ,id,"detailed_description");
-	  		 }
-	  		  if(!bm.getMatch()){
-	  		  	string temp_criteria_name = res->getString("criteria");
-	  			int temp_criteria = 0;
-	  			  		  		temp_criteria =  temp_criteria_name.size();
-	  			  		  		char txt_criteria[temp_criteria];
-	  			  		  		strcpy(txt_criteria,temp_criteria_name.c_str());
-	  			  		  		bm.search(txt_criteria, pat ,id,"criteria");
-	  		  }
-	  	 }
+	  		thread john(&BM::search,&bm,&Cli_Record_list, pat ,"brief_title");
+	  		thread sam(&BM::search,&bm,&Cli_Record_list, pat ,"brief_summary");
+	  		thread jane(&BM::search,&bm,&Cli_Record_list, pat ,"detailed_description");
+	  		thread ploy(&BM::search,&bm,&Cli_Record_list, pat ,"criteria");
+
+	  		if (john.joinable())
+	  		    john.join();
+	  		if (sam.joinable())
+	  			sam.join();
+	  		if (jane.joinable())
+	  			jane.join();
+	  		if (ploy.joinable())
+	  			ploy.join();
+
 	   cout <<"-------*------- BM Usage Time (second): "<< float( clock () - begin_time ) /  CLOCKS_PER_SEC;
 
 	   /*int x = 0;
