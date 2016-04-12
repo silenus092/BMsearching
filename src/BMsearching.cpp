@@ -98,7 +98,7 @@ void Construct_Records(){
 int main() {
 
 	 int badchar[NO_OF_CHARS];
-	 std::cout << "Number of threads = " <<  std::thread::hardware_concurrency() << std::endl;
+	 cout << "Number of threads = " <<  thread::hardware_concurrency() << endl;
 	try{
 	 cout << "Create_A_Connection" << endl;
 	 Create_A_Connection();
