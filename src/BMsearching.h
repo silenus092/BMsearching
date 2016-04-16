@@ -25,7 +25,13 @@ int number_results;
 	  string symbols;
 	} gene_struct[40962];
 
-
+	struct ClinicalTrialRecords {
+			string nct_id;
+			string brief_title;
+			string brief_summary;
+			string detailed_description;
+			string criteria;
+		};
 
 
 #endif

@@ -129,6 +129,23 @@ int main() {
 
 	   cout <<"-------*------- BM Usage Time (second): "<< float( clock () - begin_time ) /  CLOCKS_PER_SEC;
 
+	   const clock_t begin_time_1 = clock();
+
+		  		thread john1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"brief_title");
+		  		thread sam1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"brief_summary");
+		  		thread jane1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"detailed_description");
+		  		thread ploy1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"criteria");
+
+		  		if (john1.joinable())
+		  		    john1.join();
+		  		if (sam1.joinable())
+		  			sam1.join();
+		  		if (jane1.joinable())
+		  			jane1.join();
+		  		if (ploy1.joinable())
+		  			ploy1.join();
+
+	   cout <<"-------*------- BM Usage Time (second): "<< float( clock () - begin_time_1 ) /  CLOCKS_PER_SEC;
 	   /*int x = 0;
 	   const clock_t begin_time_horspool = clock();
 		  	 while (res->next() && x < 1500) {

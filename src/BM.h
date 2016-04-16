@@ -15,19 +15,12 @@
 #include <stdio.h>
 #include <thread>
 #include <list>
-
+#include <BMsearching.h>
 using namespace std;
-struct ClinicalTrialRecords {
-		string nct_id;
-		string brief_title;
-		string brief_summary;
-		string detailed_description;
-		string criteria;
-	};
+
 class BM {
+
 # define NO_OF_CHARS 256
-
-
 public:
 
 	BM();

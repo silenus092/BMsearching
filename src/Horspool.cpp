@@ -7,6 +7,13 @@
 
 #include "Horspool.h"
 int bmBc[NO_OF_CHARS];
+struct ClinicalTrialRecords {
+		string nct_id;
+		string brief_title;
+		string brief_summary;
+		string detailed_description;
+		string criteria;
+	};
 Horspool::Horspool() {
 	// TODO Auto-generated constructor stub
 
@@ -17,16 +24,11 @@ Horspool::~Horspool() {
 }
 
 void Horspool::HORSPOOL_preBmBc(char *x, int m) {
-   int i;
-   for (i = 0; i < NO_OF_CHARS; ++i)
-      bmBc[i] = m;
-   for (i = 0; i < m - 1; ++i){
-      bmBc[x[i]] = m - i - 1;
-      //cout << "x: "<< x[i] << endl;
-      //cout << "bmBc: "<< bmBc[x[i]] << endl;
-
-      //cout << "bmBc[x[i]]"<< bmBc[x[i]] << endl;
-   }
+	int i;
+	for (i = 0; i < NO_OF_CHARS; ++i)
+		bmBc[i] = m;
+	for (i = 0; i < m - 1; ++i)
+		bmBc[x[i]] = m - i - 1;
 }
 
 bool Horspool::getMatch()
@@ -39,7 +41,7 @@ void Horspool::Run_HORSPOOL(char *x, int m, char *y, int n,string id,string colu
    char c;
 
    /* Preprocessing */
-   //HORSPOOL_preBmBc(x, m);
+  HORSPOOL_preBmBc(x, m);
    /* Searching */
    j = 0;
   /*while (j <= n - m) {
@@ -52,28 +54,62 @@ void Horspool::Run_HORSPOOL(char *x, int m, char *y, int n,string id,string colu
        j += bmBc[c];
       }
    }*/
-   j  = m - 1; // Position of the pattern's right end
-   while ( j <= n-1) {
-       int k = 0; // Number of matched characters
-       while (k <= m-1 && x[m-1-k] == y[j-k])
-           k++;
-       if (k == m){
-    	   cout << "Column name: "<< column << " | Pattern ID: "<< id <<" | Found at: "<< j - m + 1 << endl;
-       	   break;
-       }else{
-           j = j + bmBc[(size_t)y[j]];
-       }
-   }
+   while (j <= n - m) {
+ 	      c = y[j + m - 1];
+ 	      if (x[m - 1] == c && memcmp(x, y + j, m - 1) == 0){
+ 	    	  cout << "Found at:" <<j<< endl;
+ 	      }
+ 	      j += bmBc[c];
+ 	   }
    //delete [] bmBc;
 }
 
 
-void Horspool::search( char *txt,  char *pat , string id,string column){
+void Horspool::search_HP(std::list<ClinicalTrialRecords> * mylist,  char *pat ,string column){
     int m = strlen(pat);
-    int n = strlen(txt);
+    //int n = strlen(txt);
 
+    std::list<ClinicalTrialRecords>::iterator it;
+    	it = mylist->begin();
+    	if (column == "brief_title") {
+    		while (it != mylist->end()) {
+    			string str = it->brief_title;
+    			char *txt = &str[0u];
+    			string id = it->nct_id;
+    			int n = strlen(txt);
+    			Run_HORSPOOL(pat, m, txt, n, id, column);
+    			it++;
+    		}
+    	} else if (column == "brief_summary") {
+    		while (it != mylist->end()) {
+    			string str = it->brief_summary;
+    			char *txt = &str[0u];
+    			string id = it->nct_id;
+    			int n = strlen(txt);
+    			Run_HORSPOOL(pat, m, txt, n, id, column);
+    			it++;
+    		}
+    	} else if (column == "detailed_description") {
+    		while (it != mylist->end()) {
+    			string str = it->detailed_description;
+    			char *txt = &str[0u];
+    			string id = it->nct_id;
+    			int n = strlen(txt);
+    			Run_HORSPOOL(pat, m, txt, n, id, column);
+    			it++;
+    		}
+    	} else if (column == "criteria") {
+    		while (it != mylist->end()) {
+    			string str = it->criteria;
+    			char *txt = &str[0u];
+    			string id = it->nct_id;
+    			int n = strlen(txt);
+    			Run_HORSPOOL(pat, m, txt, n, id, column);
+    			it++;
+    		}
+    	}
 
-	Run_HORSPOOL(pat,m,txt,n,id,column);
+	//Run_HORSPOOL(pat,m,txt,n,id,column);
 }
 
 
