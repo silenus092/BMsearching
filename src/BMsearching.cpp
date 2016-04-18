@@ -21,8 +21,20 @@ brief_summary,detailed_description, criteria) AGAINST ("CIN1");
 #include "BM.h"
 #include "Horspool.h"
 list<ClinicalTrialRecords> Cli_Record_list;
+struct Gene {
+  string  name;
+  string symbols;
+} gene_struct[40962];
+
 BM bm ;
 Horspool horspool;
+int NO_OF_GENE = 40962;
+sql::Driver *driver;
+sql::Connection *con;
+sql::Statement *stmt;
+sql::ResultSet *res;
+int number_results;
+
 class myFunctorParam
 {
 public:
@@ -108,11 +120,12 @@ int main() {
 	 Construct_Gene_Array();
 	 cout << "Fetch All Clinical Records" << endl;
 	 Fetch_All_Clinical_Records();
-	 Construct_Records();
-	   const clock_t begin_time = clock();
+	 Construct_Records();\
+	 char pat[5];
+	 strcpy(pat, "CIN1");
+	 /*  const clock_t begin_time = clock();
 
-	  		char pat[5];
-	  		strcpy(pat, "CIN1");
+
 	  		thread john(&BM::search,&bm,&Cli_Record_list, pat ,"brief_title");
 	  		thread sam(&BM::search,&bm,&Cli_Record_list, pat ,"brief_summary");
 	  		thread jane(&BM::search,&bm,&Cli_Record_list, pat ,"detailed_description");
@@ -127,7 +140,7 @@ int main() {
 	  		if (ploy.joinable())
 	  			ploy.join();
 
-	   cout <<"-------*------- BM Usage Time (second): "<< float( clock () - begin_time ) /  CLOCKS_PER_SEC;
+	   cout <<"-------*------- BM Usage Time (second): "<< float( clock () - begin_time ) /  CLOCKS_PER_SEC <<  endl;*/
 
 	   const clock_t begin_time_1 = clock();
 
@@ -145,7 +158,7 @@ int main() {
 		  		if (ploy1.joinable())
 		  			ploy1.join();
 
-	   cout <<"-------*------- BM Usage Time (second): "<< float( clock () - begin_time_1 ) /  CLOCKS_PER_SEC;
+	   cout <<"-------*------- BMH Usage Time (second): "<< float( clock () - begin_time_1 ) /  CLOCKS_PER_SEC;
 	   /*int x = 0;
 	   const clock_t begin_time_horspool = clock();
 		  	 while (res->next() && x < 1500) {

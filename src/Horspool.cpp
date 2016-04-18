@@ -7,13 +7,7 @@
 
 #include "Horspool.h"
 int bmBc[NO_OF_CHARS];
-struct ClinicalTrialRecords {
-		string nct_id;
-		string brief_title;
-		string brief_summary;
-		string detailed_description;
-		string criteria;
-	};
+
 Horspool::Horspool() {
 	// TODO Auto-generated constructor stub
 

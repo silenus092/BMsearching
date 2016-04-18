@@ -12,18 +12,9 @@
 using namespace std;
 using namespace sql::mysql;
 
-int NO_OF_GENE = 40962;
-sql::Driver *driver;
-sql::Connection *con;
-sql::Statement *stmt;
-sql::ResultSet *res;
-int number_results;
+
 
 // Global Variables
-	struct Gene {
-	  string  name;
-	  string symbols;
-	} gene_struct[40962];
 
 	struct ClinicalTrialRecords {
 			string nct_id;

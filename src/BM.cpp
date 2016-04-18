@@ -6,13 +6,7 @@
  */
 #include "BM.h"
 bool Match = false;
-struct ClinicalTrialRecords {
-		string nct_id;
-		string brief_title;
-		string brief_summary;
-		string detailed_description;
-		string criteria;
-};
+
 BM::BM() {
 	// TODO Auto-generated constructor stub
 
