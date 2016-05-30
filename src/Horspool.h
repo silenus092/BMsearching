@@ -22,10 +22,11 @@ class Horspool {
 # define NO_OF_CHARS 256
 private:
 	bool Match = false;
+
 public:
 	Horspool();
 	virtual ~Horspool();
-	void HORSPOOL_preBmBc(char *x, int m);
+	void HORSPOOL_preBmBc(char *x, int m,int bmBc[]);
 	bool getMatch();
 	void Run_HORSPOOL(char *x, int m, char *y, int n,string id,string column);
 

@@ -6,7 +6,7 @@
  */
 
 #include "Horspool.h"
-int bmBc[NO_OF_CHARS];
+
 
 Horspool::Horspool() {
 	// TODO Auto-generated constructor stub
@@ -17,7 +17,7 @@ Horspool::~Horspool() {
 	// TODO Auto-generated destructor stub
 }
 
-void Horspool::HORSPOOL_preBmBc(char *x, int m) {
+void Horspool::HORSPOOL_preBmBc(char *x, int m, int bmBc[]) {
 	int i;
 	for (i = 0; i < NO_OF_CHARS; ++i)
 		bmBc[i] = m;
@@ -33,9 +33,9 @@ bool Horspool::getMatch()
 void Horspool::Run_HORSPOOL(char *x, int m, char *y, int n,string id,string column) {
    int j;
    char c;
-
+   int bmBc[NO_OF_CHARS];
    /* Preprocessing */
-  HORSPOOL_preBmBc(x, m);
+  HORSPOOL_preBmBc(x, m,bmBc);
    /* Searching */
    j = 0;
   /*while (j <= n - m) {
@@ -48,14 +48,26 @@ void Horspool::Run_HORSPOOL(char *x, int m, char *y, int n,string id,string colu
        j += bmBc[c];
       }
    }*/
-   while (j <= n - m) {
+   //cout << "Column name: "<< column << " | Pattern ID: "<< id <<" | y: "<< y << endl;
+   int count =strlen(y);
+
+
+        while (j <= n - m && count < n) {
+
  	      c = y[j + m - 1];
  	      if (x[m - 1] == c && memcmp(x, y + j, m - 1) == 0){
- 	    	  cout << "Found at:" <<j<< endl;
+ 	    	  cout <<id << " " <<column << " Found at:" <<j<< endl;
+
  	      }
  	      j += bmBc[c];
+
+ 	      count ++;
+ 	     //cout <<"c "<< bmBc[c] <<" j " <<j << endl;
  	   }
+
+
    //delete [] bmBc;
+
 }
 
 
@@ -68,7 +80,7 @@ void Horspool::search_HP(std::list<ClinicalTrialRecords> * mylist,  char *pat ,s
     	if (column == "brief_title") {
     		while (it != mylist->end()) {
     			string str = it->brief_title;
-    			char *txt = &str[0u];
+    			char *txt = &str[0];
     			string id = it->nct_id;
     			int n = strlen(txt);
     			Run_HORSPOOL(pat, m, txt, n, id, column);
