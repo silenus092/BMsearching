@@ -30,12 +30,10 @@ bool Horspool::getMatch()
   return Match ;
 }
 
-void Horspool::Run_HORSPOOL(char *x, int m, char *y, int n,string id,string column) {
-   int j;
+void Horspool::Run_HORSPOOL(char *pat, int m, char *txt, int n,string id,string column,int bmBc[NO_OF_CHARS]) {
+   int j =0 ;
    char c;
-   int bmBc[NO_OF_CHARS];
-   /* Preprocessing */
-  HORSPOOL_preBmBc(x, m,bmBc);
+
    /* Searching */
    j = 0;
   /*while (j <= n - m) {
@@ -48,20 +46,20 @@ void Horspool::Run_HORSPOOL(char *x, int m, char *y, int n,string id,string colu
        j += bmBc[c];
       }
    }*/
-   //cout << "Column name: "<< column << " | Pattern ID: "<< id <<" | y: "<< y << endl;
-   int count =strlen(y);
+   //cout << "Column name: "<< column << " | Pattern ID: "<< id <<" | txt: "<< txt<< endl;
+   int count =0;
+        while (j <= n - m ) {
 
+ 	      c = txt[j + m - 1];
 
-        while (j <= n - m && count < n) {
-
- 	      c = y[j + m - 1];
- 	      if (x[m - 1] == c && memcmp(x, y + j, m - 1) == 0){
+ 	      if (pat[m - 1] == c && memcmp(pat, txt + j, m - 1) == 0){
  	    	  cout <<id << " " <<column << " Found at:" <<j<< endl;
-
+ 	    	 break;
  	      }
+
  	      j += bmBc[c];
 
- 	      count ++;
+
  	     //cout <<"c "<< bmBc[c] <<" j " <<j << endl;
  	   }
 
@@ -74,16 +72,18 @@ void Horspool::Run_HORSPOOL(char *x, int m, char *y, int n,string id,string colu
 void Horspool::search_HP(std::list<ClinicalTrialRecords> * mylist,  char *pat ,string column){
     int m = strlen(pat);
     //int n = strlen(txt);
-
+    int bmBc[NO_OF_CHARS];
+    /* Preprocessing */
+   HORSPOOL_preBmBc(pat, m,bmBc);
     std::list<ClinicalTrialRecords>::iterator it;
     	it = mylist->begin();
     	if (column == "brief_title") {
     		while (it != mylist->end()) {
     			string str = it->brief_title;
-    			char *txt = &str[0];
+    			char *txt = &str[0u];
     			string id = it->nct_id;
     			int n = strlen(txt);
-    			Run_HORSPOOL(pat, m, txt, n, id, column);
+    			Run_HORSPOOL(pat, m, txt, n, id, column,bmBc);
     			it++;
     		}
     	} else if (column == "brief_summary") {
@@ -92,7 +92,7 @@ void Horspool::search_HP(std::list<ClinicalTrialRecords> * mylist,  char *pat ,s
     			char *txt = &str[0u];
     			string id = it->nct_id;
     			int n = strlen(txt);
-    			Run_HORSPOOL(pat, m, txt, n, id, column);
+    			Run_HORSPOOL(pat, m, txt, n, id, column,bmBc);
     			it++;
     		}
     	} else if (column == "detailed_description") {
@@ -101,7 +101,7 @@ void Horspool::search_HP(std::list<ClinicalTrialRecords> * mylist,  char *pat ,s
     			char *txt = &str[0u];
     			string id = it->nct_id;
     			int n = strlen(txt);
-    			Run_HORSPOOL(pat, m, txt, n, id, column);
+    			Run_HORSPOOL(pat, m, txt, n, id, column,bmBc);
     			it++;
     		}
     	} else if (column == "criteria") {
@@ -110,7 +110,7 @@ void Horspool::search_HP(std::list<ClinicalTrialRecords> * mylist,  char *pat ,s
     			char *txt = &str[0u];
     			string id = it->nct_id;
     			int n = strlen(txt);
-    			Run_HORSPOOL(pat, m, txt, n, id, column);
+    			Run_HORSPOOL(pat, m, txt, n, id, column,bmBc);
     			it++;
     		}
     	}

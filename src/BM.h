@@ -25,7 +25,7 @@ public:
 
 	BM();
 	virtual ~BM();
-	void Run_BM(char *x, int m, char *y, int n, string id,string column);
+	void Run_BM(char *x, int m, char *y, int n, string id,string column,int bmGs[NO_OF_CHARS],int bmBc[NO_OF_CHARS]);
 	int MAX (int a, int b) ;
 	void badCharHeuristic( char *str, int size, int badchar[NO_OF_CHARS]);
 	void search( list<ClinicalTrialRecords> *list,  char *pat ,string column);

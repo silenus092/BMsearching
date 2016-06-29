@@ -63,12 +63,10 @@ void preBmGs(char *x, int m, int bmGs[]) {
 		bmGs[m - 1 - suff[i]] = m - 1 - i;
 }
 
-void BM::Run_BM(char *pat, int m, char *txt, int n, string id, string column) {
-	int i, j, bmGs[NO_OF_CHARS], bmBc[NO_OF_CHARS];
+void BM::Run_BM(char *pat, int m, char *txt, int n, string id, string column,int bmGs[NO_OF_CHARS],int bmBc[NO_OF_CHARS]) {
+	int i, j;
 
-	/* Preprocessing */
-	preBmGs(pat, m, bmGs);
-	preBmBc(pat, m, bmBc);
+
 	Match = false;
 	/* Searching */
 	j = 0;
@@ -113,7 +111,11 @@ bool BM::getMatch() {
 void BM::search(std::list<ClinicalTrialRecords> * mylist, char *pat,
 		string column) {
 	int m = strlen(pat);
-
+	int bmGs[NO_OF_CHARS];
+	int bmBc[NO_OF_CHARS];
+	/* Preprocessing */
+	preBmGs(pat, m, bmGs);
+	preBmBc(pat, m, bmBc);
 	std::list<ClinicalTrialRecords>::iterator it;
 	it = mylist->begin();
 	if (column == "brief_title") {
@@ -122,7 +124,7 @@ void BM::search(std::list<ClinicalTrialRecords> * mylist, char *pat,
 			char *txt = &str[0u];
 			string id = it->nct_id;
 			int n = strlen(txt);
-			Run_BM(pat, m, txt, n, id, column);
+			Run_BM(pat, m, txt, n, id, column,bmGs,bmBc);
 			it++;
 		}
 	} else if (column == "brief_summary") {
@@ -131,7 +133,7 @@ void BM::search(std::list<ClinicalTrialRecords> * mylist, char *pat,
 			char *txt = &str[0u];
 			string id = it->nct_id;
 			int n = strlen(txt);
-			Run_BM(pat, m, txt, n, id, column);
+			Run_BM(pat, m, txt, n, id, column,bmGs,bmBc);
 			it++;
 		}
 	} else if (column == "detailed_description") {
@@ -140,7 +142,7 @@ void BM::search(std::list<ClinicalTrialRecords> * mylist, char *pat,
 			char *txt = &str[0u];
 			string id = it->nct_id;
 			int n = strlen(txt);
-			Run_BM(pat, m, txt, n, id, column);
+			Run_BM(pat, m, txt, n, id, column,bmGs,bmBc);
 			it++;
 		}
 	} else if (column == "criteria") {
@@ -149,7 +151,7 @@ void BM::search(std::list<ClinicalTrialRecords> * mylist, char *pat,
 			char *txt = &str[0u];
 			string id = it->nct_id;
 			int n = strlen(txt);
-			Run_BM(pat, m, txt, n, id, column);
+			Run_BM(pat, m, txt, n, id, column,bmGs,bmBc);
 			it++;
 		}
 	}
