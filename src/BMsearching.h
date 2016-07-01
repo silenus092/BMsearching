@@ -1,9 +1,14 @@
 #ifndef BMsearching_H
 #define BMsearching_H
+#include <iostream>
+#include <chrono>
+#include <fstream>
+#include <vector>
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <algorithm>
 #include "mysql_connection.h"
 #include <cppconn/driver.h>
 #include <cppconn/exception.h>
