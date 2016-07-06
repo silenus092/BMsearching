@@ -9,6 +9,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <algorithm>
+#include <thread>
+#include <list>
 #include "mysql_connection.h"
 #include <cppconn/driver.h>
 #include <cppconn/exception.h>

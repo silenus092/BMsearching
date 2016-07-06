@@ -66,23 +66,18 @@ void load_stop_word() {
 }
 
 string Remove_Stop_word(string line) {
-   cout << "word " << line << endl;
-    char chars[10];
+   //cout << "word " << line << endl;
+    char chars[16];
     string str = line;
     vector<string> sep = split(str, ' ');
-    for (unsigned int i=0; i < stopword_list.size(); i++) {
 
-        if (binary_search(stopword_list,stopword_list.size(), sep.at(i))) {
-
-        }
-    }
-    /* for(int  i = 0  ;i < stopword_list.size() ; i++){
+    for(int  i = 0  ;i < stopword_list.size() ; i++){
          memcpy(chars,stopword_list.at(i).c_str(),stopword_list.at(i).size());
          for ( unsigned int i = 0; i < strlen(chars); ++i ) {
              str.erase( remove(str.begin(), str.end(), chars[i]), str.end() );
          }
-     }*/
-   cout << "Str " << str << endl;
+     }
+    //cout << "Str " << str << endl;
     return str;
 }
 
@@ -127,10 +122,10 @@ void Construct_Records() {
     while (res->next()) {
         names.nct_id = res->getString("nct_id");
 
-        names.brief_title =  Remove_Stop_word(res->getString("brief_title"));
+        //names.brief_title =  Remove_Stop_word(res->getString("brief_title"));
 
        // names.brief_summary = Remove_Stop_word(res->getString("brief_summary"));
-      //  names.detailed_description = Remove_Stop_word(res->getString("detailed_description"));
+        names.detailed_description = (res->getString("detailed_description"));
        // names.criteria = Remove_Stop_word(res->getString("criteria"));
         Cli_Record_list.push_back(names);
     }
@@ -161,77 +156,77 @@ int main() {
         cout << "Load data Elapsed time is :  " << chrono::duration_cast<ns>(diff).count() / 1000 << " s " << endl;
 
         char pat[5];
-        strcpy(pat, "CIN1");
-        // strcpy(pat, "BCL5");
+        //strcpy(pat, "CIN1");
+         strcpy(pat, "FOXP3");
         const clock_t begin_time = clock();
-        thread john(HashMethod::find_pattern, &Cli_Record_list, pat, "brief_title");
+        //thread john(HashMethod::find_pattern, &Cli_Record_list, pat, "brief_title");
         //thread sam( HashMethod::find_pattern,&Cli_Record_list, pat ,"brief_summary");
-        //thread jane( HashMethod::find_pattern,&Cli_Record_list, pat ,"detailed_description");
-       // thread ploy( HashMethod::find_pattern,&Cli_Record_list, pat ,"criteria");
+       // thread jane( HashMethod::find_pattern,&Cli_Record_list, pat ,"detailed_description");
+        //thread ploy( HashMethod::find_pattern,&Cli_Record_list, pat ,"criteria");
 
-        john.join();
+       // john.join();
         cout << "--- john back : <<  " << endl;
 
 
-       // sam.join();
+     //  sam.join();
         cout << "--- sam back : <<  " << endl;
 
-       //  jane.join();
+        //jane.join();
         cout << "--- jane back : <<  " << endl;
 
 
-       //  ploy.join();
+      //  ploy.join();
         cout << "--- ploy back : <<  " << endl;
 
         cout << "-------*-------HASH Usage Time (second): " << float(clock() - begin_time) / CLOCKS_PER_SEC << endl;
-        //const clock_t begin_time = clock();
+       const clock_t begin_time1 = clock();
 
 
-        /*thread john(&BM::search,&bm,&Cli_Record_list, pat ,"brief_title");
-	  		thread sam(&BM::search,&bm,&Cli_Record_list, pat ,"brief_summary");
-	  		thread jane(&BM::search,&bm,&Cli_Record_list, pat ,"detailed_description");
-	  		thread ploy(&BM::search,&bm,&Cli_Record_list, pat ,"criteria");
+            //thread john1(&BM::search,&bm,&Cli_Record_list, pat ,"brief_title");
+	  		//thread sam1(&BM::search,&bm,&Cli_Record_list, pat ,"brief_summary");
+	  		//thread jane1(&BM::search,&bm,&Cli_Record_list, pat ,"detailed_description");
+	  		//thread ploy1(&BM::search,&bm,&Cli_Record_list, pat ,"criteria");
 
-	  		if (john.joinable()){
-	  		    john.join();
-	  		cout <<"--- john back : <<  "  << endl;
-	  		}
-	  		if (sam.joinable()){
-	  			sam.join();
-	  		cout <<"--- sam back : <<  "  << endl;
-	  		}
-	  		if (jane.joinable()){
-	  			jane.join();
-	  		cout <<"--- jane back : <<  "  << endl;
-	  		}
-	  		if (ploy.joinable()){
-	  			ploy.join();
-	  		cout <<"--- ploy back : <<  "  << endl;
-	  		}
-	   cout <<"-------*------- BM Usage Time (second): "<< float( clock () - begin_time ) /  CLOCKS_PER_SEC <<  endl;
-*/
-        /*   const clock_t begin_time_1 = clock();
+
+	  		   // john1.join();
+	  		cout <<"--- john1 back : <<  "  << endl;
+
+
+	  			//sam1.join();
+	  		cout <<"--- sam1 back : <<  "  << endl;
+
+
+	  		//jane1.join();
+	  		cout <<"--- jane1 back : <<  "  << endl;
+
+
+	  			//ploy1.join();
+	  		cout <<"--- ploy1 back : <<  "  << endl;
+
+	   cout <<"-------*------- BM Usage Time (second): "<< float( clock () - begin_time1 ) /  CLOCKS_PER_SEC <<  endl;
+
+          const clock_t begin_time_2 = clock();
            try
             {
-                      thread john1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"brief_title");
-                      thread sam1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"brief_summary");
-                      thread jane1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"detailed_description");
-                      thread ploy1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"criteria");
+                      //thread john1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"brief_title");
+                     // thread sam1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"brief_summary");
+                      thread jane2(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"detailed_description");
+                     // thread ploy1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"criteria");
 
-                      if (john1.joinable()){
-                          john1.join();
+
+                        //  john1.join();
                       cout <<"--- john1 back : <<  "  << endl;
-                      }
 
-                      if (sam1.joinable()){
-                          sam1.join();
+
+
+                       //   sam1.join();
                         cout <<"--- sam1 back : <<  "  << endl;
-                      }
 
 
-                          jane1.join();
+
+                          jane2.join();
                           cout <<"--- jane1 back : <<  "  << endl;
-                          ploy1.join();
+                        //  ploy1.join();
                           cout <<"--- ploy1 back : <<  "  << endl;
 
             }catch (exception& e)
@@ -239,61 +234,7 @@ int main() {
               cout << "Standard exception: " << e.what() << endl;
             }
 
-           cout <<"-------*------- BMH Usage Time (second): "<< float( clock () - begin_time_1 ) /  CLOCKS_PER_SEC;*/
-        /*int x = 0;
-        const clock_t begin_time_horspool = clock();
-                while (res->next() && x < 1500) {
-                   string id = res->getString("nct_id");
-                   string temp_name = res->getString("brief_title");
-                   //string temp_brief_summary = res->getString("brief_summary");
-                   //string temp_detailed_description = res->getString("detailed_description");
-                   //string temp_criteria= res->getString("criteria");
-                   printf("%d From Clinical Study: %s \n",x++,temp_name.c_str() );
-                   int temp_size = 0;
-                   temp_size =  temp_name.size();
-                   char txt[temp_size];
-                   char pat[5];
-                   strcpy(txt,temp_name.c_str());
-                   strcpy(pat, "CIN1");
-                    int m = strlen(pat);
-                   horspool.HORSPOOL_preBmBc(pat ,m);
-                   horspool.search(txt, pat ,id ,"brief_title");
-                    /* if(!horspool.getMatch()){
-                     string temp_brief_summary_name = res->getString("brief_summary");
-                     int temp_brief_summary = 0;
-                             temp_brief_summary =  temp_brief_summary_name.size();
-                             char txt_brief_summary[temp_brief_summary];
-                             strcpy(txt_brief_summary,temp_brief_summary_name.c_str());
-                         horspool.search(txt_brief_summary, pat ,id,"brief_summary");
-                     }
-                     if(!horspool.getMatch()){
-                        string temp_detailed_description_name = res->getString("detailed_description");
-                                               int temp_detailed_description = 0;
-                                               temp_detailed_description =  temp_detailed_description_name.size();
-                                               char txt_detailed_description[temp_detailed_description];
-                                               strcpy(txt_detailed_description,temp_detailed_description_name.c_str());
-                                           horspool.search(txt_detailed_description, pat ,id,"detailed_description");
-                     }
-                     if(!horspool.getMatch() ){
-                                      string temp_detailed_description_name = res->getString("detailed_description");
-                                                             int temp_detailed_description = 0;
-                                                             temp_detailed_description =  temp_detailed_description_name.size();
-                                                             char txt_detailed_description[temp_detailed_description];
-                                                             strcpy(txt_detailed_description,temp_detailed_description_name.c_str());
-                                                     horspool.search(txt_detailed_description, pat ,id,"detailed_description");
-                    }
-                     if(!horspool.getMatch()){
-                         string temp_criteria_name = res->getString("criteria");
-                       int temp_criteria = 0;
-                                           temp_criteria =  temp_criteria_name.size();
-                                           char txt_criteria[temp_criteria];
-                                           strcpy(txt_criteria,temp_criteria_name.c_str());
-                                       horspool.search(txt_criteria, pat ,id,"criteria");
-                     }*/
-        // }
-        // cout <<"-------*------- BM-Horspool Usage Time (second): "<< float( clock () - begin_time_horspool ) /  CLOCKS_PER_SEC;
-
-
+           cout <<"-------*------- BMH Usage Time (second): "<< float( clock () - begin_time_2 ) /  CLOCKS_PER_SEC;
         delete res;
         delete stmt;
         delete con;

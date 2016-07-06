@@ -56,7 +56,7 @@ void seach_by_hash(char *p,char *t ,string  id , string column){
         //printf ("%s\n",pch);
         if(str_hash(pch) == str_hash(p) ){
             cout << column<< " : "<< id << " : Founded " << endl;
-
+            break;
         }
         pch = strtok (NULL, " ,.-");
     }

@@ -19,7 +19,7 @@
 using namespace std;
 
 class Horspool {
-# define NO_OF_CHARS 256
+# define NO_OF_CHARS 257
 private:
 	bool Match = false;
 
@@ -28,7 +28,7 @@ public:
 	virtual ~Horspool();
 	void HORSPOOL_preBmBc(char *x, int m,int bmBc[]);
 	bool getMatch();
-	void Run_HORSPOOL(char *x, int m, char *y, int n,string id,string column,int bmBc[NO_OF_CHARS]);
+	void Run_HORSPOOL(const char *x, int m, const char *y, int n,string id,string column,int bmBc[NO_OF_CHARS]);
 
 	void search_HP( list<ClinicalTrialRecords> *mylist,  char *pat ,string column );
 };
