@@ -51,9 +51,14 @@ void Horspool::Run_HORSPOOL(const char *pat, int m, const char *txt, int n,strin
    int count =0;
         while (j <= n ) {
 
-			if(j + m-1 < sizeof(txt))
- 	      	c = txt[j + m-1];
-			//cout << "C: "<< c << endl;
+			if(j + m-1 < sizeof(txt)){
+				c = txt[j + m-1];
+			}else{
+				c =  txt[j + m];
+			}
+
+
+			cout << "C: "<< c << endl;
  	      if (pat[m - 1] == c && memcmp(pat, txt + j, m - 1) == 0){
  	    	  cout <<id << " " <<column << " Found at:" <<j<< endl;
 

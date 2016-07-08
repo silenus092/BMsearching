@@ -6,8 +6,8 @@
 
 void seach_by_hash(char *p,char *t );
 
-void HashMethod::find_pattern(std::list<ClinicalTrialRecords> * mylist , char *pat , string column){
-    std::list<ClinicalTrialRecords>::iterator it;
+void HashMethod::find_pattern(const list <ClinicalTrialRecords> *mylist , const char *pat , const string column){
+    list<ClinicalTrialRecords>::const_iterator it;
     it = mylist->begin();
     if (column == "brief_title") {
         while (it != mylist->end()) {
@@ -15,7 +15,7 @@ void HashMethod::find_pattern(std::list<ClinicalTrialRecords> * mylist , char *p
             char *txt = &str[0u];
             string id = it->nct_id;
             int n = strlen(txt);
-            seach_by_hash(pat, txt, id,column);
+            seach_by_hash((char *) pat, txt, id, column);
             it++;
         }
     } else if (column == "brief_summary") {
@@ -24,7 +24,7 @@ void HashMethod::find_pattern(std::list<ClinicalTrialRecords> * mylist , char *p
             char *txt = &str[0u];
             string id = it->nct_id;
             int n = strlen(txt);
-            seach_by_hash(pat, txt, id,column);
+            seach_by_hash((char *) pat, txt, id, column);
             it++;
         }
     } else if (column == "detailed_description") {
@@ -33,7 +33,7 @@ void HashMethod::find_pattern(std::list<ClinicalTrialRecords> * mylist , char *p
             char *txt = &str[0u];
             string id = it->nct_id;
             int n = strlen(txt);
-            seach_by_hash(pat,  txt, id,column);
+            seach_by_hash((char *) pat, txt, id, column);
             it++;
         }
     } else if (column == "criteria") {
@@ -42,7 +42,7 @@ void HashMethod::find_pattern(std::list<ClinicalTrialRecords> * mylist , char *p
             char *txt = &str[0u];
             string id = it->nct_id;
             int n = strlen(txt);
-            seach_by_hash(pat, txt , id,column);
+            seach_by_hash((char *) pat, txt , id, column);
             it++;
         }
     }

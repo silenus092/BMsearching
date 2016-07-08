@@ -13,7 +13,7 @@
 using namespace std;
 class HashMethod {
     public:
-    static void find_pattern(std::list<ClinicalTrialRecords> * mylist , char *p ,string column);
+    static void find_pattern(const list<ClinicalTrialRecords> *mylist , const char *p , const string column);
 
 };
 void seach_by_hash(char *p,char *t ,string  id,string column);

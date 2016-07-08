@@ -20,6 +20,8 @@ brief_summary,detailed_description, criteria) AGAINST ("CIN1");
 #include "BM.h"
 #include "Horspool.h"
 #include "HashMethod.h"
+#include "ctpl.h"
+#include "ThreadPool.h"
 #include <sstream>
 
 using ns = chrono::milliseconds;
@@ -122,11 +124,11 @@ void Construct_Records() {
     while (res->next()) {
         names.nct_id = res->getString("nct_id");
 
-        //names.brief_title =  Remove_Stop_word(res->getString("brief_title"));
+        names.brief_title =  (res->getString("brief_title"));
 
-       // names.brief_summary = Remove_Stop_word(res->getString("brief_summary"));
+        names.brief_summary = (res->getString("brief_summary"));
         names.detailed_description = (res->getString("detailed_description"));
-       // names.criteria = Remove_Stop_word(res->getString("criteria"));
+        names.criteria = (res->getString("criteria"));
         Cli_Record_list.push_back(names);
     }
     printf("Size of Clinical Study records: %d \n", Cli_Record_list.size());
@@ -136,6 +138,8 @@ int main() {
 
     int badchar[NO_OF_CHARS];
     cout << "Number of threads = " << thread::hardware_concurrency() << endl;
+    //ctpl::thread_pool thread_pool (thread::hardware_concurrency());
+    ThreadPool thread_pool(thread::hardware_concurrency());
     try {
         cout << "load stop word" << endl;
         load_stop_word();
@@ -156,52 +160,25 @@ int main() {
         cout << "Load data Elapsed time is :  " << chrono::duration_cast<ns>(diff).count() / 1000 << " s " << endl;
 
         char pat[5];
-        //strcpy(pat, "CIN1");
-         strcpy(pat, "FOXP3");
+       strcpy(pat, "CIN1");
+         //strcpy(pat, "FOXP3");
         const clock_t begin_time = clock();
-        //thread john(HashMethod::find_pattern, &Cli_Record_list, pat, "brief_title");
-        //thread sam( HashMethod::find_pattern,&Cli_Record_list, pat ,"brief_summary");
-       // thread jane( HashMethod::find_pattern,&Cli_Record_list, pat ,"detailed_description");
-        //thread ploy( HashMethod::find_pattern,&Cli_Record_list, pat ,"criteria");
+        /*thread_pool.enqueue( HashMethod::find_pattern, &Cli_Record_list, pat, "brief_title");
+        thread_pool.enqueue( HashMethod::find_pattern, &Cli_Record_list, pat ,"brief_summary");
+        thread_pool.enqueue( HashMethod::find_pattern, &Cli_Record_list, pat ,"detailed_description");
+        thread_pool.enqueue( HashMethod::find_pattern, &Cli_Record_list, pat ,"criteria");
+*/
 
-       // john.join();
-        cout << "--- john back : <<  " << endl;
-
-
-     //  sam.join();
-        cout << "--- sam back : <<  " << endl;
-
-        //jane.join();
-        cout << "--- jane back : <<  " << endl;
-
-
-      //  ploy.join();
-        cout << "--- ploy back : <<  " << endl;
 
         cout << "-------*-------HASH Usage Time (second): " << float(clock() - begin_time) / CLOCKS_PER_SEC << endl;
        const clock_t begin_time1 = clock();
 
 
-            //thread john1(&BM::search,&bm,&Cli_Record_list, pat ,"brief_title");
-	  		//thread sam1(&BM::search,&bm,&Cli_Record_list, pat ,"brief_summary");
-	  		//thread jane1(&BM::search,&bm,&Cli_Record_list, pat ,"detailed_description");
-	  		//thread ploy1(&BM::search,&bm,&Cli_Record_list, pat ,"criteria");
+        thread_pool.enqueue(&BM::search,&bm,&Cli_Record_list, pat ,"brief_title");
+        thread_pool.enqueue(&BM::search,&bm,&Cli_Record_list, pat ,"brief_summary");
+        thread_pool.enqueue(&BM::search,&bm,&Cli_Record_list, pat ,"detailed_description");
+        thread_pool.enqueue(&BM::search,&bm,&Cli_Record_list, pat ,"criteria");
 
-
-	  		   // john1.join();
-	  		cout <<"--- john1 back : <<  "  << endl;
-
-
-	  			//sam1.join();
-	  		cout <<"--- sam1 back : <<  "  << endl;
-
-
-	  		//jane1.join();
-	  		cout <<"--- jane1 back : <<  "  << endl;
-
-
-	  			//ploy1.join();
-	  		cout <<"--- ploy1 back : <<  "  << endl;
 
 	   cout <<"-------*------- BM Usage Time (second): "<< float( clock () - begin_time1 ) /  CLOCKS_PER_SEC <<  endl;
 
@@ -209,24 +186,17 @@ int main() {
            try
             {
                       //thread john1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"brief_title");
-                     // thread sam1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"brief_summary");
-                      thread jane2(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"detailed_description");
+                      //thread sam1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"brief_summary");
+                      //thread jane2(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"detailed_description");
                      // thread ploy1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"criteria");
 
-
-                        //  john1.join();
+                       //john1.join();
                       cout <<"--- john1 back : <<  "  << endl;
-
-
-
-                       //   sam1.join();
+                       //  sam1.join();
                         cout <<"--- sam1 back : <<  "  << endl;
-
-
-
-                          jane2.join();
-                          cout <<"--- jane1 back : <<  "  << endl;
-                        //  ploy1.join();
+                         // jane2.join();
+                        cout <<"--- jane1 back : <<  "  << endl;
+                        // ploy1.join();
                           cout <<"--- ploy1 back : <<  "  << endl;
 
             }catch (exception& e)
