@@ -18,6 +18,7 @@ public:
     auto enqueue(F&& f, Args&&... args) 
         -> std::future<typename std::result_of<F(Args...)>::type>;
     ~ThreadPool();
+
 private:
     // need to keep track of threads so we can join them
     std::vector< std::thread > workers;
@@ -94,5 +95,7 @@ inline ThreadPool::~ThreadPool()
     for(std::thread &worker: workers)
         worker.join();
 }
+
+
 
 #endif

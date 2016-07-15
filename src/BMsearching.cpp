@@ -50,7 +50,7 @@ vector<string> split(string str, char delimiter) {
     stringstream ss(str); // Turn the string into a stream.
     string tok;
 
-    while(getline(ss, tok, delimiter)) {
+    while (getline(ss, tok, delimiter)) {
         internal.push_back(tok);
     }
 
@@ -60,7 +60,7 @@ vector<string> split(string str, char delimiter) {
 void load_stop_word() {
     ifstream file;
     string line;
-    file.open("/home/note/Desktop/Thesis/union_stopword.formated.txt");
+    file.open("/home/note/Desktop/Thesis/mysqlstopword.sorted.txt");
     while (getline(file, line))
         stopword_list.push_back(line);
 
@@ -68,21 +68,42 @@ void load_stop_word() {
 }
 
 string Remove_Stop_word(string line) {
-   //cout << "word " << line << endl;
-    char chars[16];
-    string str = line;
-    vector<string> sep = split(str, ' ');
+   // cout << "Text: " << line << endl;
+    char *txt =  &line[0];
+    string new_sentences;
+    char * pch = strtok (txt," ,.-()");
+    while (pch != NULL) {
+        int flag= 0;
+        for (int i = 0; i < stopword_list.size(); i++) {
+            if (boost::iequals(pch ,stopword_list[i])) {
+                flag = 1;
+                break;
+            }
+        }
+        if(flag !=1){
+            new_sentences.append(pch);
+        }
 
-    for(int  i = 0  ;i < stopword_list.size() ; i++){
-         memcpy(chars,stopword_list.at(i).c_str(),stopword_list.at(i).size());
-         for ( unsigned int i = 0; i < strlen(chars); ++i ) {
-             str.erase( remove(str.begin(), str.end(), chars[i]), str.end() );
-         }
-     }
-    //cout << "Str " << str << endl;
-    return str;
+        pch = strtok(NULL, " ,.-()");
+    }
+    new_sentences.erase(remove_if(new_sentences.begin(), new_sentences.end(), [](char c) { return !isalnum(c); } ), new_sentences.end());
+    //cout << "After removed: " << new_sentences << endl;
+    return new_sentences;
+   /* for (int i = 0; i < stopword_list.size(); i++) {
+        memcpy(chars, stopword_list.at(i).c_str(), stopword_list.at(i).size());
+        for (unsigned int i = 0; i < strlen(chars); ++i) {
+            str.erase(remove(str.begin(), str.end(), chars[i]), str.end());
+        }
+    }*/
+
 }
 
+/*string remove_non_alphanumeric(string line){
+    return line.erase(remove_if(line.begin(), line.end(),
+                        [](char c) {
+                            return !isalnum(c);
+                        } ), line.end());
+}*/
 
 void Create_A_Connection() {
     /* Create a connection */
@@ -122,21 +143,20 @@ void Construct_Records() {
     ClinicalTrialRecords names;
 
     while (res->next()) {
+
         names.nct_id = res->getString("nct_id");
-
-        names.brief_title =  (res->getString("brief_title"));
-
-        names.brief_summary = (res->getString("brief_summary"));
-        names.detailed_description = (res->getString("detailed_description"));
-        names.criteria = (res->getString("criteria"));
+        names.brief_title = Remove_Stop_word(res->getString("brief_title"));
+        names.brief_summary = Remove_Stop_word(res->getString("brief_summary"));
+        names.detailed_description = Remove_Stop_word(res->getString("detailed_description"));
+        names.criteria = Remove_Stop_word(res->getString("criteria"));
         Cli_Record_list.push_back(names);
+
     }
     printf("Size of Clinical Study records: %d \n", Cli_Record_list.size());
 }
 
 int main() {
 
-    int badchar[NO_OF_CHARS];
     cout << "Number of threads = " << thread::hardware_concurrency() << endl;
     //ctpl::thread_pool thread_pool (thread::hardware_concurrency());
     ThreadPool thread_pool(thread::hardware_concurrency());
@@ -156,55 +176,77 @@ int main() {
         Construct_Records();
         auto end = get_time::now();
         auto diff = end - start;
-        cout << "-------*------- Load data : CPU Usage Time (second): " << float(clock() - constructe_begin_time) / CLOCKS_PER_SEC << endl;
+        cout << "-------*------- Load data : CPU Usage Time (second): " <<
+        float(clock() - constructe_begin_time) / CLOCKS_PER_SEC << endl;
         cout << "Load data Elapsed time is :  " << chrono::duration_cast<ns>(diff).count() / 1000 << " s " << endl;
 
         char pat[5];
-       strcpy(pat, "CIN1");
-         //strcpy(pat, "FOXP3");
+        strcpy(pat, "CIN1");
+        //strcpy(pat, "FOXP3");
         const clock_t begin_time = clock();
-        /*thread_pool.enqueue( HashMethod::find_pattern, &Cli_Record_list, pat, "brief_title");
-        thread_pool.enqueue( HashMethod::find_pattern, &Cli_Record_list, pat ,"brief_summary");
-        thread_pool.enqueue( HashMethod::find_pattern, &Cli_Record_list, pat ,"detailed_description");
-        thread_pool.enqueue( HashMethod::find_pattern, &Cli_Record_list, pat ,"criteria");
-*/
+       /*thread john( HashMethod::find_pattern, &Cli_Record_list, pat, "brief_title");
+        thread sam( HashMethod::find_pattern, &Cli_Record_list, pat ,"brief_summary");
+        thread jane( HashMethod::find_pattern, &Cli_Record_list, pat ,"detailed_description");
+        thread ploy( HashMethod::find_pattern, &Cli_Record_list, pat ,"criteria");
+
+        //thread_pool.waitFinished();
+         john.join();
+         cout <<"--- john back ---   "  << endl;
+          sam.join();
+         cout <<"--- sam back ---  "  << endl;
+         jane.join();
+         cout <<"--- jane back ---   "  << endl;
+         ploy.join();
+         cout <<"--- ploy back ---   "  << endl;*/
+         cout << "-------*-------HASH Usage Time (second): " << float(clock() - begin_time) / CLOCKS_PER_SEC << endl;
+        const clock_t begin_time1 = clock();
 
 
-        cout << "-------*-------HASH Usage Time (second): " << float(clock() - begin_time) / CLOCKS_PER_SEC << endl;
-       const clock_t begin_time1 = clock();
+        //thread_pool.enqueue(&BM::search,&bm,&Cli_Record_list, pat ,"brief_title");
+        //thread_pool.enqueue(&BM::search,&bm,&Cli_Record_list, pat ,"brief_summary");
+        // thread_pool.enqueue(&BM::search,&bm,&Cli_Record_list, pat ,"detailed_description");
+        //thread_pool.enqueue(&BM::search,&bm,&Cli_Record_list, pat ,"criteria");
+
+         thread john(&BM::search,&bm,&Cli_Record_list, pat ,"brief_title");
+         thread sam(&BM::search,&bm,&Cli_Record_list, pat ,"brief_summary");
+         thread jane(&BM::search,&bm,&Cli_Record_list, pat ,"detailed_description");
+         thread ploy(&BM::search,&bm,&Cli_Record_list, pat ,"criteria");
+
+         john.join();
+         cout <<"--- john1 back : <<  "  << endl;
+         sam.join();
+         cout <<"--- sam1 back : <<  "  << endl;
+         jane.join();
+         cout <<"--- jane1 back : <<  "  << endl;
+         ploy.join();
+         cout <<"--- ploy1 back : <<  "  << endl;
 
 
-        thread_pool.enqueue(&BM::search,&bm,&Cli_Record_list, pat ,"brief_title");
-        thread_pool.enqueue(&BM::search,&bm,&Cli_Record_list, pat ,"brief_summary");
-        thread_pool.enqueue(&BM::search,&bm,&Cli_Record_list, pat ,"detailed_description");
-        thread_pool.enqueue(&BM::search,&bm,&Cli_Record_list, pat ,"criteria");
 
+        cout << "-------*------- BM Usage Time (second): " << float(clock() - begin_time1) / CLOCKS_PER_SEC << endl;
 
-	   cout <<"-------*------- BM Usage Time (second): "<< float( clock () - begin_time1 ) /  CLOCKS_PER_SEC <<  endl;
+        const clock_t begin_time_2 = clock();
+        try {
+            thread john1(&Horspool::search_HP, &horspool, &Cli_Record_list, pat, "brief_title");
+            thread sam1(&Horspool::search_HP, &horspool, &Cli_Record_list, pat,  "brief_summary");
+            thread jane2(&Horspool::search_HP, &horspool, &Cli_Record_list, pat, "detailed_description");
+            thread ploy1(&Horspool::search_HP, &horspool, &Cli_Record_list, pat, "criteria");
 
-          const clock_t begin_time_2 = clock();
-           try
-            {
-                      //thread john1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"brief_title");
-                      //thread sam1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"brief_summary");
-                      //thread jane2(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"detailed_description");
-                     // thread ploy1(&Horspool::search_HP,&horspool,&Cli_Record_list, pat ,"criteria");
+            john1.join();
+            cout << "--- john1 back : <<  " << endl;
+            sam1.join();
+            cout << "--- sam1 back : <<  " << endl;
+            jane2.join();
+            cout << "--- jane1 back : <<  " << endl;
+            ploy1.join();
+            cout << "--- ploy1 back : <<  " << endl;
 
-                       //john1.join();
-                      cout <<"--- john1 back : <<  "  << endl;
-                       //  sam1.join();
-                        cout <<"--- sam1 back : <<  "  << endl;
-                         // jane2.join();
-                        cout <<"--- jane1 back : <<  "  << endl;
-                        // ploy1.join();
-                          cout <<"--- ploy1 back : <<  "  << endl;
+        } catch (exception &e) {
+            cout << "Standard exception: " << e.what() << endl;
+        }
 
-            }catch (exception& e)
-            {
-              cout << "Standard exception: " << e.what() << endl;
-            }
+        cout << "-------*------- BMH Usage Time (second): " << float(clock() - begin_time_2) / CLOCKS_PER_SEC;
 
-           cout <<"-------*------- BMH Usage Time (second): "<< float( clock () - begin_time_2 ) /  CLOCKS_PER_SEC;
         delete res;
         delete stmt;
         delete con;

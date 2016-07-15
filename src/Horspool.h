@@ -16,10 +16,11 @@
 #include <thread>
 #include <list>
 #include "BMsearching.h"
+#include <boost/algorithm/string.hpp>
 using namespace std;
 
 class Horspool {
-# define NO_OF_CHARS 257
+# define NO_OF_CHARS 256
 private:
 	bool Match = false;
 
