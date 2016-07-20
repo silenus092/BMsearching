@@ -4,6 +4,7 @@
  *  Created on: Feb 18, 2016
  *      Author: note
  */
+
 #include "BM.h"
 bool Match = false;
 
@@ -63,7 +64,8 @@ void preBmGs(char *x, int m, int bmGs[]) {
 		bmGs[m - 1 - suff[i]] = m - 1 - i;
 }
 
-void BM::Run_BM(char *pat, int m, char *txt, int n, string id, string column,int bmGs[NO_OF_CHARS],int bmBc[NO_OF_CHARS]) {
+void BM::Run_BM(char *pat, int m, char *txt, int n, string id, string column, int bmGs[256], int bmBc[256]
+				) {
 	int i, j;
 
 
@@ -74,12 +76,24 @@ void BM::Run_BM(char *pat, int m, char *txt, int n, string id, string column,int
 		for (i = m - 1; i >= 0 && pat[i] == txt[i + j]; --i)
 			;
 		if (i < 0) {
+
 			Match = true;
 			cout << "Column name: " << column << " | Pattern ID: " << id
 					<< " | Found at: " << j << endl;
+			mylock.lock();
+			auto it = (*local_map).find(pat);
+			if(it != (*local_map).end() && !it->second.empty() )
+			{
+
+				it->second.insert( ( it->second.begin()),  id);
+			}else{
+                vector<string> fields {id};
+                (*local_map).emplace(pat ,fields  );
+            }
+			mylock.unlock();
 
 			j += bmGs[0];
-			break;
+            break;
 		} else
 			Match = false;
 		j += MAX(bmGs[i], bmBc[txt[i + j]] - m + 1 + i);
@@ -109,7 +123,8 @@ bool BM::getMatch() {
 /* A pattern searching function that uses Bad Character Heuristic of
  Boyer Moore Algorithm */
 void BM::search(std::list<ClinicalTrialRecords> * mylist, char *pat,
-		string column) {
+		string column ,unordered_map * map) {
+    local_map = map;
 	int m = strlen(pat);
 	int bmGs[NO_OF_CHARS];
 	int bmBc[NO_OF_CHARS];
@@ -124,7 +139,8 @@ void BM::search(std::list<ClinicalTrialRecords> * mylist, char *pat,
 			char *txt = &str[0u];
 			string id = it->nct_id;
 			int n = strlen(txt);
-			Run_BM(pat, m, txt, n, id, column,bmGs,bmBc);
+			Run_BM(pat, m, txt, n, id,
+				   column, bmGs, bmBc);
 			it++;
 		}
 	} else if (column == "brief_summary") {
@@ -133,7 +149,8 @@ void BM::search(std::list<ClinicalTrialRecords> * mylist, char *pat,
 			char *txt = &str[0u];
 			string id = it->nct_id;
 			int n = strlen(txt);
-			Run_BM(pat, m, txt, n, id, column,bmGs,bmBc);
+			Run_BM(pat, m, txt, n, id,
+				   column, bmGs, bmBc);
 			it++;
 		}
 	} else if (column == "detailed_description") {
@@ -142,7 +159,8 @@ void BM::search(std::list<ClinicalTrialRecords> * mylist, char *pat,
 			char *txt = &str[0u];
 			string id = it->nct_id;
 			int n = strlen(txt);
-			Run_BM(pat, m, txt, n, id, column,bmGs,bmBc);
+			Run_BM(pat, m, txt, n, id,
+				   column, bmGs, bmBc);
 			it++;
 		}
 	} else if (column == "criteria") {
@@ -151,7 +169,8 @@ void BM::search(std::list<ClinicalTrialRecords> * mylist, char *pat,
 			char *txt = &str[0u];
 			string id = it->nct_id;
 			int n = strlen(txt);
-			Run_BM(pat, m, txt, n, id, column,bmGs,bmBc);
+			Run_BM(pat, m, txt, n, id,
+				   column, bmGs, bmBc);
 			it++;
 		}
 	}

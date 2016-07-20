@@ -24,10 +24,13 @@ brief_summary,detailed_description, criteria) AGAINST ("CIN1");
 #include "ThreadPool.h"
 #include <sstream>
 
+
 using ns = chrono::milliseconds;
 using get_time = chrono::steady_clock;
 std::vector<std::string> stopword_list;
 list <ClinicalTrialRecords> Cli_Record_list;
+
+
 struct Gene {
     string name;
     string symbols;
@@ -43,6 +46,8 @@ sql::Statement *stmt;
 sql::ResultSet *res;
 int number_results;
 
+typedef boost::unordered_map<std::string,std::vector<string>> unordered_map;
+  unordered_map invert_map;
 
 // You could also take an existing vector as a parameter.
 vector<string> split(string str, char delimiter) {
@@ -207,10 +212,10 @@ int main() {
         // thread_pool.enqueue(&BM::search,&bm,&Cli_Record_list, pat ,"detailed_description");
         //thread_pool.enqueue(&BM::search,&bm,&Cli_Record_list, pat ,"criteria");
 
-         thread john(&BM::search,&bm,&Cli_Record_list, pat ,"brief_title");
-         thread sam(&BM::search,&bm,&Cli_Record_list, pat ,"brief_summary");
-         thread jane(&BM::search,&bm,&Cli_Record_list, pat ,"detailed_description");
-         thread ploy(&BM::search,&bm,&Cli_Record_list, pat ,"criteria");
+         thread john(&BM::search,&bm,&Cli_Record_list, pat ,"brief_title",&invert_map);
+         thread sam(&BM::search,&bm,&Cli_Record_list, pat ,"brief_summary",&invert_map);
+         thread jane(&BM::search,&bm,&Cli_Record_list, pat ,"detailed_description",&invert_map);
+         thread ploy(&BM::search,&bm,&Cli_Record_list, pat ,"criteria",&invert_map);
 
          john.join();
          cout <<"--- john1 back : <<  "  << endl;
@@ -221,7 +226,13 @@ int main() {
          ploy.join();
          cout <<"--- ploy1 back : <<  "  << endl;
 
-
+        for (const auto &p : invert_map){
+            std::cout << p.first << ";"  ;
+            for( const auto& text : invert_map[ p.first] ){
+                cout << text << " , ";
+            }
+            cout  << '\n';
+        }
 
         cout << "-------*------- BM Usage Time (second): " << float(clock() - begin_time1) / CLOCKS_PER_SEC << endl;
 
@@ -245,8 +256,11 @@ int main() {
             cout << "Standard exception: " << e.what() << endl;
         }
 
-        cout << "-------*------- BMH Usage Time (second): " << float(clock() - begin_time_2) / CLOCKS_PER_SEC;
-
+        cout << "-------*------- BMH Usage Time (second): " << float(clock() - begin_time_2) / CLOCKS_PER_SEC<< endl;
+        cout << "-------*------- Searching : -------*------- " << endl;
+        const clock_t begin_time_3 = clock();
+        std::cout << "Found: " <<std::boolalpha << (invert_map.find(pat) != invert_map.end()) << '\n';
+        cout << "-------*------- Searching Time (second):  " << float(clock() - begin_time_3) / CLOCKS_PER_SEC <<endl;
         delete res;
         delete stmt;
         delete con;

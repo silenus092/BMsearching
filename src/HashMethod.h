@@ -10,6 +10,7 @@
 #include <iostream>
 #include "BMsearching.h"
 
+
 using namespace std;
 class HashMethod {
     public:
