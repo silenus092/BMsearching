@@ -55,7 +55,20 @@ void Horspool::Run_HORSPOOL(const char *pat, int m, const char *txt, int n,strin
 
 			//cout << "C: "<< c << endl;
 			if (pat[m - 1] == c && memcmp(pat, txt + j, m - 1) == 0){
-				cout <<id << " " <<column << " Found at:" <<j<< endl;
+				//cout <<id << " " <<column << " Found at:" <<j<< endl;
+				mylock.lock();
+				// check value is exists in vector or not if yes just append otherwise create new patter key value pair in inverted table
+				auto it = (*local_map).find(pat);
+				if(it != (*local_map).end() && !it->second.empty() )
+				{
+
+					it->second.insert( ( it->second.begin()),  id);
+				}else{
+					vector<string> fields {id};
+					(*local_map).emplace(pat ,fields  );
+				}
+				mylock.unlock();
+
 
 				break;
 			}
@@ -126,66 +139,74 @@ const  char* boyermoore_horspool_memmem(const  char* haystack,
 	return NULL;
 }
 
-void Horspool::search_HP(std::list<ClinicalTrialRecords> * mylist,  char *pat ,string column){
-    int m = strlen(pat);
-    //int n = strlen(txt);
-    int bmBc[NO_OF_CHARS];
-    /* Preprocessing */
-   HORSPOOL_preBmBc(pat, m,bmBc);
-    std::list<ClinicalTrialRecords>::iterator it;
-    	it = mylist->begin();
-    	if (column == "brief_title") {
-    		while (it != mylist->end()) {
-    			string str = it->brief_title;
+void Horspool::search_HP(std::list<ClinicalTrialRecords> * mylist,  std::list<Gene>   *gene_struct ,string column,unordered_map * map ){
+	local_map = map;
+	std::list<Gene>::iterator it_gene;
+	it_gene = gene_struct->begin();
+	while (it_gene != gene_struct->end()) {
+
+		char *pat = new char[it_gene->symbols.length() + 1];
+		std::strcpy(pat, it_gene->symbols.c_str());
+		int m = strlen(pat);
+		//int n = strlen(txt);
+		int bmBc[NO_OF_CHARS];
+		/* Preprocessing */
+		HORSPOOL_preBmBc(pat, m, bmBc);
+		std::list<ClinicalTrialRecords>::iterator it;
+		it = mylist->begin();
+		if (column == "brief_title") {
+			while (it != mylist->end()) {
+				string str = it->brief_title;
 
 				str.erase(remove_if(str.begin(), str.end(),
 									[](char c) {
 										return !isalnum(c);
-									} ), str.end());
+									}), str.end());
 
 				//cout <<str<< endl;
-				char * txt = new char[str.size() + 1];
+				char *txt = new char[str.size() + 1];
 				std::copy(str.begin(), str.end(), txt);
 				txt[str.size()] = '\0';
-    			string id = it->nct_id;
-    			int n = strlen(txt);
-    			Run_HORSPOOL(pat, m, txt, n, id, column,bmBc);
+				string id = it->nct_id;
+				int n = strlen(txt);
+				Run_HORSPOOL(pat, m, txt, n, id, column, bmBc);
 				delete[] txt;
-    			it++;
-    		}
-    	} else if (column == "brief_summary") {
-    		while (it != mylist->end()) {
-    			string str = it->brief_summary;
-				str.erase(remove_if(str.begin(), str.end(), [](char c) { return !isalnum(c); } ), str.end());
-    			char *txt = &str[0u];
-    			string id = it->nct_id;
-    			int n = strlen(txt);
-    			Run_HORSPOOL(pat, m, txt, n, id, column,bmBc);
-    			it++;
-    		}
-    	} else if (column == "detailed_description") {
-    		while (it != mylist->end()) {
-    			string str = it->detailed_description;
-				str.erase(remove_if(str.begin(), str.end(), [](char c) { return !isalnum(c); } ), str.end());
-    			char *txt = &str[0u];
-    			string id = it->nct_id;
-    			int n = strlen(txt);
-    			Run_HORSPOOL(pat, m, txt, n, id, column,bmBc);
+				it++;
+			}
+		} else if (column == "brief_summary") {
+			while (it != mylist->end()) {
+				string str = it->brief_summary;
+				str.erase(remove_if(str.begin(), str.end(), [](char c) { return !isalnum(c); }), str.end());
+				char *txt = &str[0u];
+				string id = it->nct_id;
+				int n = strlen(txt);
+				Run_HORSPOOL(pat, m, txt, n, id, column, bmBc);
+				it++;
+			}
+		} else if (column == "detailed_description") {
+			while (it != mylist->end()) {
+				string str = it->detailed_description;
+				str.erase(remove_if(str.begin(), str.end(), [](char c) { return !isalnum(c); }), str.end());
+				char *txt = &str[0u];
+				string id = it->nct_id;
+				int n = strlen(txt);
+				Run_HORSPOOL(pat, m, txt, n, id, column, bmBc);
 				//boyermoore_horspool_memmem( txt, n,pat, m, id, column,bmBc);
-    			it++;
-    		}
-    	} else if (column == "criteria") {
-    		while (it != mylist->end()) {
-    			string str = it->criteria;
-				str.erase(remove_if(str.begin(), str.end(), [](char c) { return !isalnum(c); } ), str.end());
-    			char *txt = &str[0u];
-    			string id = it->nct_id;
-    			int n = strlen(txt);
-    			Run_HORSPOOL(pat, m, txt, n, id, column,bmBc);
-    			it++;
-    		}
-    	}
-
+				it++;
+			}
+		} else if (column == "criteria") {
+			while (it != mylist->end()) {
+				string str = it->criteria;
+				str.erase(remove_if(str.begin(), str.end(), [](char c) { return !isalnum(c); }), str.end());
+				char *txt = &str[0u];
+				string id = it->nct_id;
+				int n = strlen(txt);
+				Run_HORSPOOL(pat, m, txt, n, id, column, bmBc);
+				it++;
+			}
+		}
+		it_gene++;
+	}
 	//Run_HORSPOOL(pat,m,txt,n,id,column);
 }
 

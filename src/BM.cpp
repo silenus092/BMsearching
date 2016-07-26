@@ -8,6 +8,7 @@
 #include "BM.h"
 bool Match = false;
 
+
 BM::BM() {
 	// TODO Auto-generated constructor stub
 
@@ -78,9 +79,9 @@ void BM::Run_BM(char *pat, int m, char *txt, int n, string id, string column, in
 		if (i < 0) {
 
 			Match = true;
-			cout << "Column name: " << column << " | Pattern ID: " << id
-					<< " | Found at: " << j << endl;
+			//cout << "Column name: " << column << " | Pattern ID: " << id<< " | Found at: " << j << endl;
 			mylock.lock();
+            // check value is exists in vector or not if yes just append otherwise create new patter key value pair in inverted table
 			auto it = (*local_map).find(pat);
 			if(it != (*local_map).end() && !it->second.empty() )
 			{
@@ -122,58 +123,68 @@ bool BM::getMatch() {
 }
 /* A pattern searching function that uses Bad Character Heuristic of
  Boyer Moore Algorithm */
-void BM::search(std::list<ClinicalTrialRecords> * mylist, char *pat,
-		string column ,unordered_map * map) {
+void BM::search(std::list<ClinicalTrialRecords> * mylist,std::list<Gene>   *gene_struct,
+        string column ,unordered_map * map) {
     local_map = map;
-	int m = strlen(pat);
-	int bmGs[NO_OF_CHARS];
-	int bmBc[NO_OF_CHARS];
-	/* Preprocessing */
-	preBmGs(pat, m, bmGs);
-	preBmBc(pat, m, bmBc);
-	std::list<ClinicalTrialRecords>::iterator it;
-	it = mylist->begin();
-	if (column == "brief_title") {
-		while (it != mylist->end()) {
-			string str = it->brief_title;
-			char *txt = &str[0u];
-			string id = it->nct_id;
-			int n = strlen(txt);
-			Run_BM(pat, m, txt, n, id,
-				   column, bmGs, bmBc);
-			it++;
-		}
-	} else if (column == "brief_summary") {
-		while (it != mylist->end()) {
-			string str = it->brief_summary;
-			char *txt = &str[0u];
-			string id = it->nct_id;
-			int n = strlen(txt);
-			Run_BM(pat, m, txt, n, id,
-				   column, bmGs, bmBc);
-			it++;
-		}
-	} else if (column == "detailed_description") {
-		while (it != mylist->end()) {
-			string str = it->detailed_description;
-			char *txt = &str[0u];
-			string id = it->nct_id;
-			int n = strlen(txt);
-			Run_BM(pat, m, txt, n, id,
-				   column, bmGs, bmBc);
-			it++;
-		}
-	} else if (column == "criteria") {
-		while (it != mylist->end()) {
-			string str = it->criteria;
-			char *txt = &str[0u];
-			string id = it->nct_id;
-			int n = strlen(txt);
-			Run_BM(pat, m, txt, n, id,
-				   column, bmGs, bmBc);
-			it++;
-		}
-	}
+    std::list<Gene>::iterator it_gene;
+    it_gene = gene_struct->begin();
+    while (it_gene != gene_struct->end()) {
+
+        char * pat = new char[it_gene->symbols.length() + 1];
+        std::strcpy(pat,it_gene->symbols.c_str());
+        //cout << "Pattern: " << pat << endl;
+        int m = strlen(pat);
+        int bmGs[NO_OF_CHARS];
+        int bmBc[NO_OF_CHARS];
+        /* Preprocessing */
+        preBmGs(pat, m, bmGs);
+        preBmBc(pat, m, bmBc);
+        std::list<ClinicalTrialRecords>::iterator it;
+        it = mylist->begin();
+        if (column == "brief_title") {
+            while (it != mylist->end()) {
+                string str = it->brief_title;
+                char *txt = &str[0u];
+                string id = it->nct_id;
+                int n = strlen(txt);
+                Run_BM(pat, m, txt, n, id,
+                       column, bmGs, bmBc);
+                it++;
+            }
+        } else if (column == "brief_summary") {
+            while (it != mylist->end()) {
+                string str = it->brief_summary;
+                char *txt = &str[0u];
+                string id = it->nct_id;
+                int n = strlen(txt);
+                Run_BM(pat, m, txt, n, id,
+                       column, bmGs, bmBc);
+                it++;
+            }
+        } else if (column == "detailed_description") {
+            while (it != mylist->end()) {
+                string str = it->detailed_description;
+                char *txt = &str[0u];
+                string id = it->nct_id;
+                int n = strlen(txt);
+                Run_BM(pat, m, txt, n, id,
+                       column, bmGs, bmBc);
+                it++;
+            }
+        } else if (column == "criteria") {
+            while (it != mylist->end()) {
+                string str = it->criteria;
+                char *txt = &str[0u];
+                string id = it->nct_id;
+                int n = strlen(txt);
+                Run_BM(pat, m, txt, n, id,
+                       column, bmGs, bmBc);
+                it++;
+            }
+        }
+        it_gene++;
+    }
+
 
 	//int badchar[NO_OF_CHARS];
 	/* thread john(&BM::Run_BM,this, pat,m, txt,n,id,column);

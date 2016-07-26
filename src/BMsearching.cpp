@@ -29,12 +29,9 @@ using ns = chrono::milliseconds;
 using get_time = chrono::steady_clock;
 std::vector<std::string> stopword_list;
 list <ClinicalTrialRecords> Cli_Record_list;
+list <Gene> gene_struct;
 
 
-struct Gene {
-    string name;
-    string symbols;
-} gene_struct[40962];
 
 BM bm;
 Horspool horspool;
@@ -45,10 +42,8 @@ sql::Connection *con;
 sql::Statement *stmt;
 sql::ResultSet *res;
 int number_results;
-
 typedef boost::unordered_map<std::string,std::vector<string>> unordered_map;
-  unordered_map invert_map;
-
+  unordered_map invert_map , invert_map_BMH;
 // You could also take an existing vector as a parameter.
 vector<string> split(string str, char delimiter) {
     vector<string> internal;
@@ -125,16 +120,20 @@ void Connect_To_clintrialsgov_out_database() {
 void Construct_Gene_Array() {
     res = stmt->executeQuery("SELECT  * from  hgnc_complete_set");
     int i = 0;
+    Gene names;
     while (res->next()) {
         // cout << "\t... MySQL replies: ";
         //cout << res->getString("name") <<" : "<< res->getString("symbol") << endl;
-        gene_struct[i].name = res->getString("name");
+        names.name = res->getString("name");
         if (res->getString("symbol").compare("T") == 0)
-            gene_struct[i].symbols = " " + res->getString("symbol") + " ";
+            names.symbols = " " + res->getString("symbol") + " ";
         else
-            gene_struct[i].symbols = res->getString("symbol");
+            names.symbols = res->getString("symbol");
         i++;
+        gene_struct.push_back(names);
     }
+
+
 }
 
 void Fetch_All_Clinical_Records() {
@@ -150,10 +149,10 @@ void Construct_Records() {
     while (res->next()) {
 
         names.nct_id = res->getString("nct_id");
-        names.brief_title = Remove_Stop_word(res->getString("brief_title"));
-        names.brief_summary = Remove_Stop_word(res->getString("brief_summary"));
-        names.detailed_description = Remove_Stop_word(res->getString("detailed_description"));
-        names.criteria = Remove_Stop_word(res->getString("criteria"));
+        names.brief_title = (res->getString("brief_title"));
+        names.brief_summary = (res->getString("brief_summary"));
+        names.detailed_description = (res->getString("detailed_description"));
+        names.criteria = (res->getString("criteria"));
         Cli_Record_list.push_back(names);
 
     }
@@ -212,19 +211,22 @@ int main() {
         // thread_pool.enqueue(&BM::search,&bm,&Cli_Record_list, pat ,"detailed_description");
         //thread_pool.enqueue(&BM::search,&bm,&Cli_Record_list, pat ,"criteria");
 
-         thread john(&BM::search,&bm,&Cli_Record_list, pat ,"brief_title",&invert_map);
-         thread sam(&BM::search,&bm,&Cli_Record_list, pat ,"brief_summary",&invert_map);
-         thread jane(&BM::search,&bm,&Cli_Record_list, pat ,"detailed_description",&invert_map);
-         thread ploy(&BM::search,&bm,&Cli_Record_list, pat ,"criteria",&invert_map);
+         thread john(&BM::search,&bm,&Cli_Record_list, &gene_struct ,"brief_title",&invert_map);
+         thread sam(&BM::search,&bm,&Cli_Record_list, &gene_struct ,"brief_summary",&invert_map);
+         thread jane(&BM::search,&bm,&Cli_Record_list, &gene_struct ,"detailed_description",&invert_map);
+         thread ploy(&BM::search,&bm,&Cli_Record_list, &gene_struct ,"criteria",&invert_map);
 
          john.join();
-         cout <<"--- john1 back : <<  "  << endl;
+        // cout <<"--- john1 back : <<  "  << endl;
          sam.join();
-         cout <<"--- sam1 back : <<  "  << endl;
+        // cout <<"--- sam1 back : <<  "  << endl;
          jane.join();
-         cout <<"--- jane1 back : <<  "  << endl;
+        // cout <<"--- jane1 back : <<  "  << endl;
          ploy.join();
-         cout <<"--- ploy1 back : <<  "  << endl;
+        // cout <<"--- ploy1 back : <<  "  << endl;
+
+
+        cout << "-------*------- BM Usage Time (second): " << float(clock() - begin_time1) / CLOCKS_PER_SEC << endl;
 
         for (const auto &p : invert_map){
             std::cout << p.first << ";"  ;
@@ -234,14 +236,12 @@ int main() {
             cout  << '\n';
         }
 
-        cout << "-------*------- BM Usage Time (second): " << float(clock() - begin_time1) / CLOCKS_PER_SEC << endl;
-
         const clock_t begin_time_2 = clock();
         try {
-            thread john1(&Horspool::search_HP, &horspool, &Cli_Record_list, pat, "brief_title");
-            thread sam1(&Horspool::search_HP, &horspool, &Cli_Record_list, pat,  "brief_summary");
-            thread jane2(&Horspool::search_HP, &horspool, &Cli_Record_list, pat, "detailed_description");
-            thread ploy1(&Horspool::search_HP, &horspool, &Cli_Record_list, pat, "criteria");
+            thread john1(&Horspool::search_HP, &horspool, &Cli_Record_list, &gene_struct ,  "brief_title" ,&invert_map_BMH);
+            thread sam1(&Horspool::search_HP, &horspool, &Cli_Record_list, &gene_struct ,   "brief_summary",&invert_map_BMH);
+            thread jane2(&Horspool::search_HP, &horspool, &Cli_Record_list, &gene_struct ,  "detailed _description",&invert_map_BMH);
+            thread ploy1(&Horspool::search_HP, &horspool, &Cli_Record_list, &gene_struct ,"criteria",&invert_map_BMH);
 
             john1.join();
             cout << "--- john1 back : <<  " << endl;
@@ -256,10 +256,19 @@ int main() {
             cout << "Standard exception: " << e.what() << endl;
         }
 
+
         cout << "-------*------- BMH Usage Time (second): " << float(clock() - begin_time_2) / CLOCKS_PER_SEC<< endl;
+        for (const auto &p : invert_map_BMH){
+            std::cout << p.first << ";"  ;
+            for( const auto& text : invert_map_BMH[ p.first] ){
+                cout << text << " , ";
+            }
+            cout  << '\n';
+        }
+
         cout << "-------*------- Searching : -------*------- " << endl;
         const clock_t begin_time_3 = clock();
-        std::cout << "Found: " <<std::boolalpha << (invert_map.find(pat) != invert_map.end()) << '\n';
+        std::cout << "Found: " <<std::boolalpha << (invert_map.find("REN") != invert_map.end()) << '\n';
         cout << "-------*------- Searching Time (second):  " << float(clock() - begin_time_3) / CLOCKS_PER_SEC <<endl;
         delete res;
         delete stmt;

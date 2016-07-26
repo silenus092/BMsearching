@@ -32,7 +32,10 @@ using namespace sql::mysql;
 			string criteria;
 		};
 
-
+    struct Gene {
+    string name;
+    string symbols;
+    }  ;
 
 
 #endif

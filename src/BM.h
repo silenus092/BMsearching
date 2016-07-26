@@ -20,7 +20,6 @@
 using namespace std;
 
 class BM {
-
 # define NO_OF_CHARS 256
 public:
 	typedef boost::unordered_map<std::string,std::vector<string>> unordered_map;
@@ -30,10 +29,11 @@ public:
 	void Run_BM(char *x, int m, char *y, int n, string id, string column, int bmGs[256], int bmBc[256]);
 	int MAX (int a, int b) ;
 	void badCharHeuristic( char *str, int size, int badchar[NO_OF_CHARS]);
-	void search( list<ClinicalTrialRecords> *list,  char *pat ,string column ,  unordered_map *pMap);
+	void search( std::list<ClinicalTrialRecords> *list,  std::list<Gene> *gene_struct,string column ,  unordered_map *pMap);
 	bool getMatch();
 	void publicFunction();
 	std::mutex mylock;
+
 
 };
 
