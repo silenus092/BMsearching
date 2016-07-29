@@ -21,9 +21,9 @@ void Horspool::HORSPOOL_preBmBc(char *x, int m, int bmBc[]) {
 	int i;
 	for (i = 0; i < NO_OF_CHARS; ++i)
 		bmBc[i] = m;
-	m = m-1;
-	for (i = 0; i < m ; ++i)
-		bmBc[x[i]] = m - i ;
+
+	for (i = 0; i < m-1 ; ++i)
+		bmBc[x[i]] = m - i-1 ;
 }
 
 bool Horspool::getMatch()
@@ -48,14 +48,13 @@ void Horspool::Run_HORSPOOL(const char *pat, int m, const char *txt, int n,strin
          }*/
 		//cout << "Column name: "<< column << " | Pattern ID: "<< id <<" | txt: "<< txt<< endl;
 		int count =0;
-		while (j + m-1 <= n ) {
-
+		while (j <= n - m ) {
 			c = txt[j + m-1];
 			//cout << "j: "<< j << endl;
-
 			//cout << "C: "<< c << endl;
+			//str_hash(string(pat)) == str_hash(string(txt).substr(j, m - 1))
 			if (pat[m - 1] == c && memcmp(pat, txt + j, m - 1) == 0){
-				//cout <<id << " " <<column << " Found at:" <<j<< endl;
+				cout <<"Patern: "<< pat <<" |"<<id << " " <<column << " Found at:" <<j<< endl;
 				mylock.lock();
 				// check value is exists in vector or not if yes just append otherwise create new patter key value pair in inverted table
 				auto it = (*local_map).find(pat);
@@ -73,7 +72,31 @@ void Horspool::Run_HORSPOOL(const char *pat, int m, const char *txt, int n,strin
 				break;
 			}
 
-			j += bmBc[c];
+            // extend one more jump
+           for(unsigned  z = 0 ; z < m ; z++){
+                // cout << " p[z]:" << p[z]<< " t[j + m]:" << t[j + m]<< endl;
+                if(pat[z]!=txt[j + m]){ //check next last to character
+                    if(z == m-1 ) {
+                        j+=1;
+                        //cout << "***** Extend one more jump , Current position :" <<j<< endl;
+                        break;
+                    }
+                }else{
+                    //cout << "***** Not apply OMJ ,Found :" <<t[j + m]<< endl;
+                    break;
+                }
+            }
+
+            // move pattern to right
+            j += bmBc[c];
+           // cout << " First jump  is :" <<  bmBc[c]<< endl;
+
+            // Double jump
+           if( pat[m - 1] != txt[j + m-1]){
+                j+= bmBc[txt[j + m-1]];
+                //cout << " Second jump , Add more :" << bmBc[t[j + m-1]]<< endl;
+            }
+
 
 
 			//cout <<"c "<< bmBc[c] <<" j " <<j << endl;
@@ -157,26 +180,16 @@ void Horspool::search_HP(std::list<ClinicalTrialRecords> * mylist,  std::list<Ge
 		if (column == "brief_title") {
 			while (it != mylist->end()) {
 				string str = it->brief_title;
-
-				str.erase(remove_if(str.begin(), str.end(),
-									[](char c) {
-										return !isalnum(c);
-									}), str.end());
-
 				//cout <<str<< endl;
-				char *txt = new char[str.size() + 1];
-				std::copy(str.begin(), str.end(), txt);
-				txt[str.size()] = '\0';
+				char *txt = &str[0u];
 				string id = it->nct_id;
 				int n = strlen(txt);
 				Run_HORSPOOL(pat, m, txt, n, id, column, bmBc);
-				delete[] txt;
 				it++;
 			}
 		} else if (column == "brief_summary") {
 			while (it != mylist->end()) {
 				string str = it->brief_summary;
-				str.erase(remove_if(str.begin(), str.end(), [](char c) { return !isalnum(c); }), str.end());
 				char *txt = &str[0u];
 				string id = it->nct_id;
 				int n = strlen(txt);
@@ -186,7 +199,6 @@ void Horspool::search_HP(std::list<ClinicalTrialRecords> * mylist,  std::list<Ge
 		} else if (column == "detailed_description") {
 			while (it != mylist->end()) {
 				string str = it->detailed_description;
-				str.erase(remove_if(str.begin(), str.end(), [](char c) { return !isalnum(c); }), str.end());
 				char *txt = &str[0u];
 				string id = it->nct_id;
 				int n = strlen(txt);
@@ -197,7 +209,7 @@ void Horspool::search_HP(std::list<ClinicalTrialRecords> * mylist,  std::list<Ge
 		} else if (column == "criteria") {
 			while (it != mylist->end()) {
 				string str = it->criteria;
-				str.erase(remove_if(str.begin(), str.end(), [](char c) { return !isalnum(c); }), str.end());
+				//str.erase(remove_if(str.begin(), str.end(), [](char c) { return !isalnum(c); }), str.end());
 				char *txt = &str[0u];
 				string id = it->nct_id;
 				int n = strlen(txt);

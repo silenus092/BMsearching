@@ -79,7 +79,7 @@ void BM::Run_BM(char *pat, int m, char *txt, int n, string id, string column, in
 		if (i < 0) {
 
 			Match = true;
-			//cout << "Column name: " << column << " | Pattern ID: " << id<< " | Found at: " << j << endl;
+			cout  <<"Patern: "<< pat <<" |"<< " Column name: " << column << " | Pattern ID: " << id<< " | Found at: " << j << endl;
 			mylock.lock();
             // check value is exists in vector or not if yes just append otherwise create new patter key value pair in inverted table
 			auto it = (*local_map).find(pat);

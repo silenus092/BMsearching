@@ -47,6 +47,7 @@ typedef boost::unordered_map<std::string,std::vector<string>> unordered_map;
 // You could also take an existing vector as a parameter.
 vector<string> split(string str, char delimiter) {
     vector<string> internal;
+
     stringstream ss(str); // Turn the string into a stream.
     string tok;
 
@@ -67,24 +68,28 @@ void load_stop_word() {
     cout << "Size of stop word: " << stopword_list.size() << endl;
 }
 
+
 string Remove_Stop_word(string line) {
    // cout << "Text: " << line << endl;
     char *txt =  &line[0];
     string new_sentences;
-    char * pch = strtok (txt," ,.-()");
+    char * pch = strtok (txt," ,.()null");
     while (pch != NULL) {
         int flag= 0;
-        for (int i = 0; i < stopword_list.size(); i++) {
+        /*for (int i = 0; i < stopword_list.size(); i++) {
             if (boost::iequals(pch ,stopword_list[i])) {
                 flag = 1;
                 break;
             }
-        }
-        if(flag !=1){
+        }*/
+        if( std::find(stopword_list.begin(), stopword_list.end(), pch) != stopword_list.end() != std::string::npos){
             new_sentences.append(pch);
         }
+        /*if(flag !=1){
+            new_sentences.append(pch);
+        }*/
 
-        pch = strtok(NULL, " ,.-()");
+        pch = strtok(NULL, " ,.():;\n");
     }
     new_sentences.erase(remove_if(new_sentences.begin(), new_sentences.end(), [](char c) { return !isalnum(c); } ), new_sentences.end());
     //cout << "After removed: " << new_sentences << endl;
@@ -132,7 +137,7 @@ void Construct_Gene_Array() {
         i++;
         gene_struct.push_back(names);
     }
-
+    cout << "gene lsit size:" << gene_struct.size()<<endl;
 
 }
 
@@ -149,10 +154,10 @@ void Construct_Records() {
     while (res->next()) {
 
         names.nct_id = res->getString("nct_id");
-        names.brief_title = (res->getString("brief_title"));
-        names.brief_summary = (res->getString("brief_summary"));
-        names.detailed_description = (res->getString("detailed_description"));
-        names.criteria = (res->getString("criteria"));
+        names.brief_title = Remove_Stop_word(res->getString("brief_title"));
+        names.brief_summary = Remove_Stop_word(res->getString("brief_summary"));
+        names.detailed_description = Remove_Stop_word(res->getString("detailed_description"));
+        names.criteria = Remove_Stop_word(res->getString("criteria"));
         Cli_Record_list.push_back(names);
 
     }
